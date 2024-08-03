@@ -10,6 +10,7 @@ import { faCalendar } from '@fortawesome/pro-light-svg-icons';
 import { faFolderOpen } from '@fortawesome/pro-light-svg-icons';
 import { faChartLine } from '@fortawesome/pro-light-svg-icons';
 import { faGear } from '@fortawesome/pro-light-svg-icons';
+import { faPaintbrushFine } from '@fortawesome/pro-light-svg-icons';
 
 
 
@@ -55,6 +56,10 @@ const Dashboard = () => {
                     <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faFolderOpen} />
                         <p>Files</p>
+                    </div>
+                    <div className="icon">
+                        <FontAwesomeIcon className="menu-icon" icon={faPaintbrushFine} />
+                        <p>Whiteboards</p>
                     </div>
                     <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faChartLine} />
