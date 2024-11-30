@@ -63,8 +63,8 @@
     flex-direction: column;
     align-items: center;
     height: 85vh;
-    width: 6.4%;
-    background-color: #ededf0;
+    width: 8.4%;
+    background-color: #0C2F4A;
     align-items: first baseline;
     position: relative;
     border-radius: 15px;
@@ -85,7 +85,7 @@
 .icon:hover p,
 .icon:hover .menu-icon {
     
-    color: rgb(37, 30, 141);
+    color: #0C2F4A;
 }
 .icon:hover{
     background-color: white;
@@ -93,7 +93,7 @@
 }
 .icon p{
     font-size: 13px;
-    color: rgb(37, 30, 141);
+    color: white;
     text-align: center;
     margin-top: 6.5px;
     font-weight: lighter;
@@ -102,7 +102,7 @@
     font-size: 21px;
     margin-right: 13px;
     margin-left: 20px;
-    color: rgb(37, 30, 141);
+    color: white;
 }
 
 .dashboard{
@@ -113,6 +113,7 @@
     width: 92%;
     background-color: white;
     align-self: center;
-    overflow-y: scroll;
+ 
+   
 
 }

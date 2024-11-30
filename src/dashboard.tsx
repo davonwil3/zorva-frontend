@@ -11,6 +11,7 @@ import { faFolderOpen } from '@fortawesome/pro-light-svg-icons';
 import { faChartLine } from '@fortawesome/pro-light-svg-icons';
 import { faGear } from '@fortawesome/pro-light-svg-icons';
 import { faPaintbrushFine } from '@fortawesome/pro-light-svg-icons';
+import Chatbot from "./components/chatbot";
 
 
 
@@ -70,7 +71,9 @@ const Dashboard = () => {
                         <p>Settings</p>
                     </div>
                 </div>
-                <div className="dashboard"> </div>
+                <div className="dashboard"> 
+                    <Chatbot />
+                </div>
             </div>
         </div>
     );
