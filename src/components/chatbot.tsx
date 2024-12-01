@@ -32,14 +32,17 @@ const Chatbot = () => {
         <div className="chatbot-container">
             <div className="chat-view">
                 <div className="chatbox">
+                    <div className="chat-messages">
 
+                    </div>
+                    <input
+                        value={input}
+                        onChange={e => setInput(e.target.value)}
+                        placeholder="Type a message"
+                        className='chat-input'
+                    />
                 </div>
-                <input
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    placeholder="Type a message"
-                    className='chat-input'
-                />
+
 
             </div>
 
