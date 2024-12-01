@@ -12,6 +12,8 @@ import { faChartLine } from '@fortawesome/pro-light-svg-icons';
 import { faGear } from '@fortawesome/pro-light-svg-icons';
 import { faPaintbrushFine } from '@fortawesome/pro-light-svg-icons';
 import Chatbot from "./components/chatbot";
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+
 
 
 
@@ -35,39 +37,39 @@ const Dashboard = () => {
             <div className="dashboard-view">
                 <div className="menu">
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faHouse} />
+                        <FontAwesomeIcon className="menu-icon" icon={faHouse as IconProp} />
                         <p>Home</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faClipboard} />
+                        <FontAwesomeIcon className="menu-icon" icon={faClipboard as IconProp} />
                         <p>Projects</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faListCheck} />
+                        <FontAwesomeIcon className="menu-icon" icon={faListCheck as IconProp} />
                         <p>Tasks</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faEnvelope} />
+                        <FontAwesomeIcon className="menu-icon" icon={faEnvelope as IconProp} />
                         <p>Messages</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faCalendar} />
+                        <FontAwesomeIcon className="menu-icon" icon={faCalendar as IconProp} />
                         <p>Calendar</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faFolderOpen} />
+                        <FontAwesomeIcon className="menu-icon" icon={faFolderOpen as IconProp} />
                         <p>Files</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faPaintbrushFine} />
+                        <FontAwesomeIcon className="menu-icon" icon={faPaintbrushFine as IconProp} />
                         <p>Whiteboards</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faChartLine} />
+                        <FontAwesomeIcon className="menu-icon" icon={faChartLine as IconProp} />
                         <p>Reports</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faGear} />
+                        <FontAwesomeIcon className="menu-icon" icon={faGear as IconProp} />
                         <p>Settings</p>
                     </div>
                 </div>

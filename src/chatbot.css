@@ -25,7 +25,6 @@
     flex-direction: column;
     width: 70%;
     height: 85vh;
-    background-color: #f6f6f7;
     border-radius: 15px;
     overflow: hidden;
 }
@@ -34,18 +33,49 @@
     flex-direction: column;
     width: 100%;
     height: 85%;
-    background-color: #f7f7f9;
     border-radius: 15px;
     overflow: hidden;
 }
-.chat-input{
+.input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #e9e9ed;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.button-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background-color: #e9e9ed;
+}
+
+.chat-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.chat-button:hover {
+    background-color: #0056b3;
+}
+.chat-input {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 15%;
-    background-color: #d5d5d6;
+    background-color: #e9e9ed;
     border-radius: 15px;
     overflow: hidden;
-    border: none
+    border: none;
+    outline: none;
+    padding: 15px;
+    font-size: 15px;
+    resize: none; /* Prevent manual resizing */
+    box-sizing: border-box; /* Ensure padding is included in the height calculation */
 }
