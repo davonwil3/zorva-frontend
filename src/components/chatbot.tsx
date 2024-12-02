@@ -53,8 +53,12 @@ const Chatbot = () => {
                             rows={2}
                         ></textarea>
                         <div className="button-row">
-                            <FontAwesomeIcon icon={faPaperclipVertical as IconProp} size="lg"  />
-                            <FontAwesomeIcon icon={faArrowUp as IconProp} size="lg"  />
+                            <div className="left-button">
+                                <FontAwesomeIcon icon={faPaperclipVertical as IconProp} style={{fontSize : "22px"}} size="lg" />
+                            </div>
+                            <div className="right-button">
+                                <FontAwesomeIcon icon={faArrowUp as IconProp} style={{fontSize : "20px"}} size="lg" />
+                            </div>
                         </div>
                     </div>
                 </div>

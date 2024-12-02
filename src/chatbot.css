@@ -47,9 +47,22 @@
 
 .button-row {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     padding: 10px;
     background-color: #e9e9ed;
+    padding-left: 25px;
+    padding-right: 25px;
+    align-items: first baseline;
+}
+.right-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 27px; /* Adjust the size as needed */
+    height: 27px; /* Adjust the size as needed */
+    background-color: black;
+    border-radius: 50%;
+    color: white;
 }
 
 .chat-button {
@@ -74,7 +87,7 @@
     overflow: hidden;
     border: none;
     outline: none;
-    padding: 15px;
+    padding: 15px 30px 15px 30px;
     font-size: 15px;
     resize: none; /* Prevent manual resizing */
     box-sizing: border-box; /* Ensure padding is included in the height calculation */
