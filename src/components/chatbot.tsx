@@ -10,6 +10,8 @@ const Chatbot = () => {
     const [input, setInput] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+
+
     useEffect(() => {
         fetch("http://localhost:10000/api/chatbot", {
             method: "POST",
@@ -30,6 +32,23 @@ const Chatbot = () => {
     }, []);
 
     useEffect(() => {
+
+        fetch("http://localhost:10000/api/messages", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                messages: messages,
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto'; // Reset the height
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'; // Set the height to the scroll height
