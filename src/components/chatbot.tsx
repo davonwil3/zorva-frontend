@@ -6,7 +6,8 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import "../chatbot.css";
 
 const Chatbot = () => {
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([{ text : 'Hello welcome to Zorva! start by typing a message to your ai assistant', sender : 'assistant' },
+     { text : 'thanks im Davon', sender : 'user' }]);
     const [input, setInput] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -32,23 +33,6 @@ const Chatbot = () => {
     }, []);
 
     useEffect(() => {
-
-        fetch("http://localhost:10000/api/messages", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                messages: messages,
-            })
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data);
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto'; // Reset the height
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'; // Set the height to the scroll height
@@ -60,7 +44,11 @@ const Chatbot = () => {
             <div className="chat-view">
                 <div className="chatbox">
                     <div className="chat-messages">
-                        {/* Render chat messages here */}
+                        {messages.map((message, index) => (
+                            <div key={index} className={`chat-message ${message.sender === 'user' ? 'user-message' : 'assistant-message'}`}>
+                                <p>{message.text}</p>
+                            </div>
+                        ))}
                     </div>
                     <div className="input-container">
                         <textarea

@@ -28,14 +28,7 @@
     border-radius: 15px;
     overflow: hidden;
 }
-.chat-messages{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 85%;
-    border-radius: 15px;
-    overflow: hidden;
-}
+
 .input-container {
     display: flex;
     flex-direction: column;
@@ -91,4 +84,34 @@
     font-size: 15px;
     resize: none; /* Prevent manual resizing */
     box-sizing: border-box; /* Ensure padding is included in the height calculation */
+}
+.chat-messages{
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    width: 100%;
+    height: 85%;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.assistant-message {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.user-message {
+    display: inline-block;
+    align-self: flex-end;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #e1e1e3;
+    border-radius: 15px;
+    padding: 10px;
+    max-width: 80%; /* Maximum width */
+    word-wrap: break-word; /* Handle long words or URLs */
+}
+.chat-message p{
+    margin: 0;
+    display: inline;
 }
