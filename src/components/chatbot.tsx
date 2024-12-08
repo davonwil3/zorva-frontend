@@ -39,6 +39,32 @@ const Chatbot = () => {
         }
     }, [input]);
 
+    const sendMessage = () => {
+        if (input) {
+            setMessages([...messages, { text: input, sender: 'user' }]);
+            setInput('');
+        }
+
+        fetch("http://localhost:10000/api/chatbot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                assistantId: "asst_Kwk9RbLgIjL3L1fDB4Ye3md0",
+                message: input
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                setMessages([...messages, { text: data.text, sender: 'assistant' }]);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+    }
+
     return (
         <div className="chatbot-container">
             <div className="chat-view">
