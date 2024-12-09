@@ -22,7 +22,7 @@ function SignIn() {
     try {
       await setPersistence(auth, browserSessionPersistence);
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/files');
+      navigate('/dashboard');
     } catch (error) {
       console.error(error);
     }
@@ -33,7 +33,7 @@ function SignIn() {
     try {
       await setPersistence(auth, browserSessionPersistence);
       await signInWithPopup(auth, provider);
-      navigate('/files')
+      navigate('/dashboard');
      
     } catch (error) {
       console.error(error);

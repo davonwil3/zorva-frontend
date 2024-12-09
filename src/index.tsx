@@ -6,6 +6,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import SignIn from './signin';
 import SignUp from './signup';
+import ProtectedRoute  from './protected-route';
 
 console.log(process.env.REACT_APP_FIREBASE_API_KEY);
 
@@ -29,7 +30,9 @@ root.render(
   <Router>
     <Routes>
       <Route path="/" element={<SignUp />} />
-      <Route path="/home" element={<Dashboard />} />
+      <Route path="/dashboard" element= {
+        <ProtectedRoute element={<Dashboard />} />
+      } />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
     </Routes>

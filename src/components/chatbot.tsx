@@ -83,7 +83,7 @@ const Chatbot = () => {
                             onChange={e => setInput(e.target.value)}
                             placeholder="Type a message"
                             className='chat-input'
-                            rows={2}
+                            rows={1}
                         ></textarea>
                         <div className="button-row">
                             <div className="left-button">

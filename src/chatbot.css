@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     width: 90%;
-    height: 100vh;
+    height: 100%;
     margin-left: 30px;
     margin-right: 30px;
     margin-top: 25px;
@@ -15,7 +15,7 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     background-color: #faf9f9;
     border-radius: 15px;
     overflow: hidden;
@@ -24,7 +24,7 @@
     display: flex;
     flex-direction: column;
     width: 70%;
-    height: 85vh;
+    height: 100%;
     border-radius: 15px;
     overflow: hidden;
 }
@@ -84,15 +84,18 @@
     font-size: 15px;
     resize: none; /* Prevent manual resizing */
     box-sizing: border-box; /* Ensure padding is included in the height calculation */
+    margin-top: 10px;
 }
 .chat-messages{
     display: flex;
     align-items: flex-start;
     flex-direction: column;
     width: 100%;
-    height: 85%;
+    height: 82%;
     border-radius: 15px;
-    overflow: hidden;
+    overflow: scroll;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 .assistant-message {
     display: flex;
