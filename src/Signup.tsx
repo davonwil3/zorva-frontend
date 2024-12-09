@@ -1,11 +1,10 @@
 import React from "react";
-import "./appstyles.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFacebookF } from '@fortawesome/free-brands-svg-icons'
 import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { app } from './index';
-
+import "./authentication.css";
 
 
 function SignUp() {
@@ -46,8 +45,6 @@ function SignUp() {
     }
   };
 
- 
-
   const signUpWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -62,16 +59,14 @@ function SignUp() {
     }
   };
 
-
-
   return (
     <div>
       <div className="authentication-page">
         <div className="authentication-container">
-          <div className="authentication-image"></div>
+
           <div className="authentication-form-container">
-            
-          <form className="authentication-form" onSubmit={signUpWithEmail}>
+
+            <form className="authentication-form" onSubmit={signUpWithEmail}>
               <h1>Sign Up to jolix </h1>
               <p>Create an account below</p>
               <div className="form-group" >
@@ -87,9 +82,8 @@ function SignUp() {
               </div>
               <div className="authentication-alt-signin">
                 <p>Or sign up using</p>
-                <button type="button" onClick={signUpWithFacebook}><FontAwesomeIcon icon={faFacebookF} style={{marginRight: '10px'}}/>Sign up with Facebook</button>
-                <button type="button" onClick={signUpWithGoogle} style={{backgroundColor:"white", color: "black", border:"1px solid black", display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                  <img src="/assets/googleicon.jpeg" alt="" style={{width: '20px', height: '19px', marginRight: '10px'}}/>
+                <button type="button" onClick={signUpWithGoogle} style={{ backgroundColor: "white", color: "black", border: "1px solid black", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img src="/assets/googleicon.jpeg" alt="" style={{ width: '20px', height: '19px', marginRight: '10px' }} />
                   Sign up with Google
                 </button>
               </div>

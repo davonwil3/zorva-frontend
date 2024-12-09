@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Dashboard from './dashboard';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import SignIn from './signin';
+import SignUp from './signup';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -24,7 +26,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <Router>
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/home" element={<Dashboard />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
     </Routes>
   </Router>
 );
