@@ -11,11 +11,11 @@ function SignUp() {
 
   const auth = getAuth(app);
   const navigate = useNavigate();
-  const provider = new FacebookAuthProvider();
+ 
 
   const signup = async (firebaseUid: string, email: string | null) => {
     try {
-      await fetch(`${process.env.REACT_APP_BACKEND_URL}/adduser`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/adduser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -63,11 +63,12 @@ function SignUp() {
     <div>
       <div className="authentication-page">
         <div className="authentication-container">
+          <div className="authentication-image"></div>
 
           <div className="authentication-form-container">
 
             <form className="authentication-form" onSubmit={signUpWithEmail}>
-              <h1>Sign Up to jolix </h1>
+              <h1>Sign Up to Zorva </h1>
               <p>Create an account below</p>
               <div className="form-group" >
                 <label htmlFor="email">Email address</label>

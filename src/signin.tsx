@@ -45,6 +45,7 @@ function SignIn() {
     <div>
       <div className="authentication-page">
         <div className="authentication-container">
+        <div className="authentication-image"></div>
 
           <div className="authentication-form-container">
             <div className="create-account-ask">
@@ -55,7 +56,7 @@ function SignIn() {
             </div>
             
             <form className="authentication-form" onSubmit={signInWithEmail}>
-              <h1>Sign in to jolix </h1>
+              <h1>Sign in to Zorva </h1>
               <p>Enter your details below</p>
               <div className="form-group" >
                 <label htmlFor="email">Email address</label>

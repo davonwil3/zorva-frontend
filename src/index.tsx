@@ -7,6 +7,8 @@ import { getAnalytics } from "firebase/analytics";
 import SignIn from './signin';
 import SignUp from './signup';
 
+console.log(process.env.REACT_APP_FIREBASE_API_KEY);
+
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "zorva-1ef8c.firebaseapp.com",
@@ -26,6 +28,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <Router>
     <Routes>
+      <Route path="/" element={<SignUp />} />
       <Route path="/home" element={<Dashboard />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
@@ -33,6 +36,6 @@ root.render(
   </Router>
 );
 
-module.exports = app;
+export default app;
 
 
