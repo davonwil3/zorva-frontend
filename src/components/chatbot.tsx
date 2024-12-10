@@ -2,16 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclipVertical, faArrowUp } from '@fortawesome/pro-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import ChatHeader from "./chatheader";
 
 import "../chatbot.css";
 
 const Chatbot = () => {
-    const [messages, setMessages] = useState([{ text : 'Hello welcome to Zorva! start by typing a message to your ai assistant', sender : 'assistant' },
-     { text : 'thanks im Davon', sender : 'user' }]);
+    const [messages, setMessages] = useState([{ text: 'Hello welcome to Zorva! start by typing a message to your ai assistant', sender: 'assistant' },
+    { text: 'thanks im Davon', sender: 'user' }]);
     const [input, setInput] = useState('');
+    const [assistantName, setAssistantName] = useState('Davons ai');
+    const [conversationName, setConversationName] = useState('');
+    const assistants = ['Assistant 1', 'Assistant 2', 'Assistant 3']; // Example assistants
+    const [selectedAssistant, setSelectedAssistant] = useState(assistants[0]);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-
 
     useEffect(() => {
         fetch("http://localhost:10000/api/chatbot", {
@@ -38,6 +41,10 @@ const Chatbot = () => {
             textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'; // Set the height to the scroll height
         }
     }, [input]);
+
+    const handleSelectAssistant = (assistant: string) => {
+        setSelectedAssistant(assistant);
+    };
 
     const sendMessage = () => {
         if (input) {
@@ -67,6 +74,11 @@ const Chatbot = () => {
 
     return (
         <div className="chatbot-container">
+            <ChatHeader
+                assistants={assistants}
+                selectedAssistant={selectedAssistant}
+                onSelectAssistant={handleSelectAssistant}
+            />
             <div className="chat-view">
                 <div className="chatbox">
                     <div className="chat-messages">
@@ -87,10 +99,10 @@ const Chatbot = () => {
                         ></textarea>
                         <div className="button-row">
                             <div className="left-button">
-                                <FontAwesomeIcon icon={faPaperclipVertical as IconProp} style={{fontSize : "22px"}} size="lg" />
+                                <FontAwesomeIcon icon={faPaperclipVertical as IconProp} style={{ fontSize: "22px" }} size="lg" />
                             </div>
                             <div className="right-button">
-                                <FontAwesomeIcon icon={faArrowUp as IconProp} style={{fontSize : "20px"}} size="lg" />
+                                <FontAwesomeIcon icon={faArrowUp as IconProp} style={{ fontSize: "20px" }} size="lg" />
                             </div>
                         </div>
                     </div>
