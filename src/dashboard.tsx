@@ -23,16 +23,7 @@ function Dashboard () {
     
     return (
         <div className="app-page">
-            <div className="app-header">
-                <div className="app-logo">
-                    <div className="logo-img"></div>
-                    <h2>Zorva</h2>
-                </div>
-                <div className="app-profile">
-                    <div className="profile-img"></div>
-                    <p>John Doe</p>
-                </div>
-            </div>
+            
             <div className="dashboard-view">
                 <div className="menu">
                     <div className="icon">

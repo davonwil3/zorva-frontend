@@ -2,18 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclipVertical, faArrowUp } from '@fortawesome/pro-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import ChatHeader from "./chatheader";
-
+import { faPen } from "@fortawesome/pro-solid-svg-icons";
 import "../chatbot.css";
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([{ text: 'Hello welcome to Zorva! start by typing a message to your ai assistant', sender: 'assistant' },
     { text: 'thanks im Davon', sender: 'user' }]);
     const [input, setInput] = useState('');
-    const [assistantName, setAssistantName] = useState('Davons ai');
-    const [conversationName, setConversationName] = useState('');
-    const assistants = ['Assistant 1', 'Assistant 2', 'Assistant 3']; // Example assistants
-    const [selectedAssistant, setSelectedAssistant] = useState(assistants[0]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [title, setTitle] = useState('Chatbot');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -42,8 +39,16 @@ const Chatbot = () => {
         }
     }, [input]);
 
-    const handleSelectAssistant = (assistant: string) => {
-        setSelectedAssistant(assistant);
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(event.target.value);
+    };
+
+    const handleBlur = async () => {
+        setIsEditing(false);
+    };
+
+    const handleIconClick = () => {
+        setIsEditing(true);
     };
 
     const sendMessage = () => {
@@ -74,11 +79,14 @@ const Chatbot = () => {
 
     return (
         <div className="chatbot-container">
-            <ChatHeader
-                assistants={assistants}
-                selectedAssistant={selectedAssistant}
-                onSelectAssistant={handleSelectAssistant}
-            />
+            <div className="conversation-label">
+                {isEditing ? (
+                    <input type="text" value={title} onChange={handleChange} onBlur={handleBlur} autoFocus />
+                ) : (
+                    <h3 onClick={handleIconClick} style={{cursor: 'pointer'}} >{title}</h3>
+                )}
+                <FontAwesomeIcon className="pen" icon={faPen} onClick={handleIconClick} />
+            </div>
             <div className="chat-view">
                 <div className="chatbox">
                     <div className="chat-messages">
