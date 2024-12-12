@@ -34,14 +34,7 @@ function Dashboard () {
                         <FontAwesomeIcon className="menu-icon" icon={faArrowUpFromBracket as IconProp} />
                         <p>Upload</p>
                     </div>
-                    <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faFolderOpen as IconProp} />
-                        <p>Documents</p>
-                    </div>
-                    <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" style={{fontSize: '26px'}} icon={faMicrochipAi as IconProp} />
-                        <p>Assistants</p>
-                    </div>
+                   
                     <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faMessageDots as IconProp} />
                         <p>Conversations</p>
@@ -50,10 +43,7 @@ function Dashboard () {
                         <FontAwesomeIcon className="menu-icon" icon={faWrench as IconProp} />
                         <p>Integrations</p>
                     </div>
-                    <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faChartColumn as IconProp} />
-                        <p>Reports</p>
-                    </div>
+                 
                     <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faGear as IconProp} />
                         <p>Settings</p>
