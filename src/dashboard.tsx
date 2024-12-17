@@ -20,7 +20,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 function Dashboard () {
 
-    // changing design
+    
     return (
         <div className="app-page">
             
