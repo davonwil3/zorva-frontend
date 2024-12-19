@@ -65,8 +65,8 @@
     flex-direction: column;
     align-items: center;
     height: 100%;
-    width: 12.4%;
-    background-color: #0C2F4A;
+    width: 18%;
+    background-color: #F9F9F9;
     align-items: first baseline;
     position: relative;
     padding: 5px 0px 5px;
@@ -75,13 +75,14 @@
 
 .icon{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     margin-top: 6px;
     margin-bottom: 6px;
     cursor: pointer;
     width: 100%;
     padding: 9.5px;
+   
     
 }
 .icon:hover p,
@@ -94,8 +95,8 @@
 
 }
 .icon p{
-    font-size: 12px;
-    color: white;
+    font-size: 13px;
+    color: #0C2F4A;
     text-align: center;
     margin-top: 6.5px;
     font-weight: lighter;
@@ -104,7 +105,7 @@
     font-size: 21px;
     margin-right: 13px;
     margin-left: 20px;
-    color: white;
+    color: #0C2F4A
 }
 
 .dashboard{
@@ -112,7 +113,7 @@
     justify-content: center;
     align-items: center;
     height: 98%;
-    width: 92%;
+    width: 82%;
     background-color: white;
     align-self: flex-start;
 }
