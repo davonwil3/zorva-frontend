@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import './app.css';
+import './css/app.css';
+import Upload from "./components/upload";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpFromBracket, faChartLineUp, faDatabase, faFileChartPie } from '@fortawesome/pro-light-svg-icons';
 import { faWrench } from '@fortawesome/pro-light-svg-icons';
@@ -71,7 +72,7 @@ function Dashboard() {
 
                 </div>
                 <div className="dashboard">
-                    <Chatbot />
+                    <Upload />
                 </div>
             </div>
         </div>

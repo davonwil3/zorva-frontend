@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclipVertical, faArrowUp } from '@fortawesome/pro-regular-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faPen } from "@fortawesome/pro-solid-svg-icons";
-import "../chatbot.css";
+import "../css/chatbot.css";
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([{ text: 'Hello welcome to Zorva! start by typing a message to your ai assistant', sender: 'assistant' },

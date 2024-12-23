@@ -4,7 +4,7 @@ import { faFacebookF } from '@fortawesome/free-brands-svg-icons'
 import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { app } from './index';
-import "./authentication.css";
+import "./css/authentication.css";
 
 
 function SignUp() {

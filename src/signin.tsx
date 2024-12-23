@@ -1,5 +1,5 @@
 import React from "react";
-import './authentication.css';
+import './css/authentication.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
