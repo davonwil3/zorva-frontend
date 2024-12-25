@@ -101,7 +101,7 @@ function Upload() {
 
         // Handle non-ZIP files (add them as files at the root level)
         otherFiles.forEach((file) => {
-            processedFiles.push(file); // Add to processed files
+            processedFiles.push(file); 
         });
 
         // Build display items for the UI
