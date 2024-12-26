@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import JSZip from "jszip";
 import '../css/upload.css';
+import { getAuth } from "firebase/auth";
+import { app } from '../index';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> extends React.HTMLAttributes<T> {
@@ -12,6 +14,8 @@ interface FolderStructure {
 }
 
 function Upload() {
+    const auth = getAuth(app);
+    const user = auth.currentUser?.uid;
     const [isDragging, setIsDragging] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [fileTree, setFileTree] = useState<FolderStructure>({});
@@ -62,7 +66,7 @@ function Upload() {
         // Helper function to get the root folder name
         const getRootFolderName = (path: string) => {
             const parts = path.split('/');
-            return parts.length > 1 ? parts[0] + '/' : null; 
+            return parts.length > 1 ? parts[0] + '/' : null;
         };
 
         // Process ZIP files
@@ -86,7 +90,7 @@ function Upload() {
                     // Extract the root folder name if applicable
                     const rootFolder = getRootFolderName(relativePath);
                     if (rootFolder) {
-                        folderNames.add(rootFolder); 
+                        folderNames.add(rootFolder);
                     }
 
                     // If it's a file, process it (but don't display it directly in the UI)
@@ -101,7 +105,7 @@ function Upload() {
 
         // Handle non-ZIP files (add them as files at the root level)
         otherFiles.forEach((file) => {
-            processedFiles.push(file); 
+            processedFiles.push(file);
         });
 
         // Build display items for the UI
@@ -115,8 +119,31 @@ function Upload() {
         // Update states
         setUploadedFiles(processedFiles); // Actual files for database upload
         setDisplayItems(displayItemsArray); // UI display items
+
+        uploadFiles(processedFiles);
     };
 
+    const uploadFiles = async (filesToUpload?: File[]) => {
+        const files = filesToUpload || uploadedFiles;
+        console.log('uploadFiles:', files);
+      
+        const formData = new FormData();
+        files.forEach(file => formData.append('files', file));
+        const firebaseUid = user;
+        if (firebaseUid) {
+            formData.append('firebaseUid', firebaseUid);
+        }
+        console.log('Firebase:', firebaseUid);
+        try {
+            const response = await fetch('http://localhost:10000/api/uploadfiles', {
+                method: 'POST',
+                body: formData,
+            });
+
+        } catch (error) {
+            console.log('Error uploading files:', error);
+        }
+    }
 
     useEffect(() => {
         console.log('Uploaded Files:', uploadedFiles);
@@ -152,9 +179,9 @@ function Upload() {
                 {displayItems.map((item, index) => (
                     <div key={index} className="uploaded-file">
                         {item.endsWith('/') ? (
-                            <span className="uploaded-filename"><img src="/assets/folder.png" alt="" style={{width: "17px", height:"17px"}} /> {item}</span> 
+                            <span className="uploaded-filename"><img src="/assets/folder.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}</span>
                         ) : (
-                            <span className="uploaded-filename"><img src="/assets/file.png" alt="" style={{width: "17px", height:"17px"}} /> {item}</span> 
+                            <span className="uploaded-filename"><img src="/assets/file.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}</span>
                         )}
                     </div>
                 ))}
