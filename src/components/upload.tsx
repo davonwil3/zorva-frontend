@@ -139,6 +139,8 @@ function Upload() {
                 method: 'POST',
                 body: formData,
             });
+            const result = await response.json();
+            console.log('Upload result:', result);
 
         } catch (error) {
             console.log('Error uploading files:', error);
