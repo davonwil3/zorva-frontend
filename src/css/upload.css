@@ -18,6 +18,8 @@
     transition: background-color 0.3s;
     border-radius: 7px;
     overflow: hidden; /* Hide overflow to prevent scrolling of the entire box */
+    align-self: flex-start;
+    margin-top:170px ;
 }
 
 .upload-box.dragging {
@@ -42,6 +44,7 @@
     border: 1px solid #7c7c7d;
     border-radius: 5px;
     margin-top: 15px;
+    cursor: pointer;
 }
 .uploaded-files {
     margin-top: 20px;

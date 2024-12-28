@@ -1,0 +1,43 @@
+.datasets-page{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 750px;
+    margin: 0 auto;
+    position: relative;
+    margin-bottom: 20px;
+}
+.search-box {
+    width: 100%;
+    padding: 14px 20px;
+    padding-right: 40px; /* Make space for the button */
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 16px;
+    outline: none; 
+}
+.search-button {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+}
+.search-button i {
+    font-size: 20px;
+}
+.file-icon{
+    
+    width: 27px;
+    height: 27px;
+}
