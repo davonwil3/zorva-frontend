@@ -1,4 +1,4 @@
-.datasets-page{
+.datasets-page {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -6,15 +6,23 @@
     height: 100%;
     width: 100%;
 }
+
+.complete-search-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* Ensure consistent spacing */
+    align-items: center;
+    width: 90%;
+    margin-bottom: 20px; /* Add spacing between the search container and DataGrid */
+}
+
 .search-container {
     display: flex;
     align-items: center;
-    width: 100%;
-    max-width: 750px;
-    margin: 0 auto;
+    width: 90%;
     position: relative;
-    margin-bottom: 20px;
 }
+
 .search-box {
     width: 100%;
     padding: 14px 20px;
@@ -22,8 +30,9 @@
     border: 1px solid #ccc;
     border-radius: 20px;
     font-size: 16px;
-    outline: none; 
+    outline: none;
 }
+
 .search-button {
     position: absolute;
     right: 10px;
@@ -33,11 +42,14 @@
     font-size: 16px;
     color: #888;
 }
-.search-button i {
-    font-size: 20px;
+
+.switch-container {
+    display: flex;
+    align-items: center;
+    white-space: nowrap; /* Prevent wrapping of label text */
 }
-.file-icon{
-    
+
+.file-icon {
     width: 27px;
     height: 27px;
 }
