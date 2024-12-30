@@ -9,6 +9,7 @@ import { faMagnifyingGlass } from '@fortawesome/pro-light-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import Fuse from 'fuse.js';
 import { Switch, FormControlLabel } from '@mui/material';
+import Modal from './modal';
 
 
 interface FileRow {
@@ -27,7 +28,8 @@ export default function Datasets() {
     const [selectedRow, setSelectedRow] = useState<FileRow | null>(null);
     const [searchResults, setSearchResults] = useState<FileRow[]>([]); // State for search results
     const [searchQuery, setSearchQuery] = useState<string>(''); // State for search query
-    const [searchByContent, setSearchByContent] = useState(false);
+    const [searchByContent, setSearchByContent] = useState<boolean>(false);
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -65,6 +67,7 @@ export default function Datasets() {
             const row = rows.find((row) => row.id === selectedId);
             setSelectedRow(row || null); // Update selectedRow state
             console.log('Selected Row:', row);
+            setModalOpen(true);
         } else {
             setSelectedRow(null); // Clear selection if no rows are selected
         }
@@ -328,7 +331,12 @@ export default function Datasets() {
                     onRowSelectionModelChange={handleRowSelection}
                 />
             </Box>
-
+            <Modal
+                isOpen={isModalOpen}
+                firebaseUid={firebaseUid}
+                onClose={() => setModalOpen(false)}
+                selectedRow={selectedRow}
+            />
         </div>
     );
 }
