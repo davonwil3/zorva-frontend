@@ -26,12 +26,13 @@ export default function Modal(props: any) {
     };
 
     useEffect(() => {
+        if (!props.selectedRow || !props.selectedRow.fileID) return;
         const fetchData = async () => {
             try {
                 const response = await fetch('http://localhost:10000/api/getfilesbyID', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileIDs: props.selectedRow.fileID, firebaseUid: props.firebaseUid }),
+                    body: JSON.stringify({ fileIDs: [props.selectedRow.fileID], firebaseUid: props.firebaseUid }),
                 });
                 const data = await response.json();
                 setFileData(data.files);

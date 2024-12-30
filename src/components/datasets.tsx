@@ -331,12 +331,14 @@ export default function Datasets() {
                     onRowSelectionModelChange={handleRowSelection}
                 />
             </Box>
-            <Modal
-                isOpen={isModalOpen}
-                firebaseUid={firebaseUid}
-                onClose={() => setModalOpen(false)}
-                selectedRow={selectedRow}
-            />
+            {selectedRow && (
+                <Modal
+                    isOpen={isModalOpen}
+                    firebaseUid={firebaseUid}
+                    onClose={() => setModalOpen(false)}
+                    selectedRow={selectedRow}
+                />
+            )}
         </div>
     );
 }
