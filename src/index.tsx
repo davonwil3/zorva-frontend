@@ -8,7 +8,6 @@ import SignIn from './signin';
 import SignUp from './signup';
 import ProtectedRoute  from './protected-route';
 
-console.log(process.env.REACT_APP_FIREBASE_API_KEY);
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,

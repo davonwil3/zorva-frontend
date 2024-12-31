@@ -30,6 +30,7 @@ export default function Datasets() {
     const [searchQuery, setSearchQuery] = useState<string>(''); // State for search query
     const [searchByContent, setSearchByContent] = useState<boolean>(false);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [rows, setRows] = useState<FileRow[]>([]); 
 
 
     useEffect(() => {
@@ -43,14 +44,27 @@ export default function Datasets() {
                 });
                 const data = await response.json();
                 console.log('Files:', data.files);
-                const formattedRows: FileRow[] = data.files.map((file: any, index: number) => ({
-                    id: index + 1,
-                    filename: file.filename ?? 'Untitled',
-                    bytes: file.usage_bytes ?? null,
-                    created_at: file.created_at ?? null,
-                    fileID: file.id,
-                }));
-                setFiles(formattedRows); // Update files state
+    
+                const formattedRows: FileRow[] = data.files.map((file: any, index: number) => {
+                    let correctedFilename = file.filename ?? 'Untitled';
+    
+                    if (correctedFilename.endsWith('.json')) {
+                        const parts = correctedFilename.split('.');
+                        if (parts.length > 2) {
+                            correctedFilename = parts.slice(0, -1).join('.');
+                        }
+                    }
+    
+                    return {
+                        id: index + 1,
+                        filename: correctedFilename,
+                        bytes: file.usage_bytes ?? null,
+                        created_at: file.created_at ?? null,
+                        fileID: file.id,
+                    };
+                });
+    
+                setRows(formattedRows); // Capture initial rows
                 setSearchResults(formattedRows); // Initialize search results
             } catch (error) {
                 console.error('Error fetching files:', error);
@@ -58,8 +72,10 @@ export default function Datasets() {
                 setLoading(false);
             }
         };
+    
         fetchFiles();
     }, []);
+    
 
     const handleRowSelection = (selectionModel: GridRowSelectionModel) => {
         if (selectionModel.length > 0) {
@@ -116,17 +132,7 @@ export default function Datasets() {
             headerName: 'Filename',
             type: 'string',
             width: 400,
-            renderCell: (params: GridCellParams<FileRow, string>) => {
-                const filename = params.row.filename;
-
-                // Strip the `.json` extension for converted files
-                const originalName = filename.endsWith('.json') && filename.split('.').length > 2
-                    ? filename.replace(/\.json$/, '') // Remove `.json` for converted files
-                    : filename; // Keep as-is for original JSON files
-
-                return <span>{originalName}</span>;
-            },
-        },
+        },        
         {
             field: 'bytes',
             headerName: 'File Size',
@@ -157,15 +163,7 @@ export default function Datasets() {
 
         },
     ];
-    // Convert your data to the FileRow shape
-    const rows: FileRow[] = files.map((file, index) => ({
-        id: index + 1,
-        filename: file.filename ?? 'Untitled',
-        bytes: file.bytes ?? null,
-        created_at: file.created_at ?? null,
-        fileID: file.fileID,
-    }));
-
+    
     // Fuse.js search
     const handleSearch = async (query: string) => {
         console.log('Search query:', query);
