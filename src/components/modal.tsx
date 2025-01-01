@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import "../css/modal.css";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as XLSX from "xlsx";
-
-
+import { themeQuartz } from "ag-grid-community";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faLightbulbOn } from '@fortawesome/pro-light-svg-icons';
+import { faArrowUpFromBracket, faChartLineUp, faFileChartPie } from '@fortawesome/pro-light-svg-icons';
 
 interface FileMetadata {
     id: string;
@@ -23,6 +24,20 @@ export default function Modal(props: any) {
     const [loading, setLoading] = useState(true);
 
     ModuleRegistry.registerModules([AllCommunityModule]);
+
+    const myTheme = themeQuartz.withParams({
+        /* Low spacing = very compact */
+        spacing: 2,
+        /* Changes the color of the grid text */
+        foregroundColor: 'rgb(14, 68, 145)',
+        /* Changes the color of the grid background */
+        backgroundColor: 'rgb(241, 247, 255)',
+        /* Changes the header color of the top row */
+        headerBackgroundColor: 'rgb(228, 237, 250)',
+        /* Changes the hover color of the row*/
+        rowHoverColor: 'rgb(216, 226, 255)',
+    });
+
 
     useEffect(() => {
         if (!props.selectedRow || !props.selectedRow.fileID) return;
@@ -90,29 +105,46 @@ export default function Modal(props: any) {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-container">
-                <button className="modal-close" onClick={props.onClose}>
-                    &times;
-                </button>
-                {props.selectedRow && rowData.length > 0 ? (
-                    <div
-                        className="ag-theme-alpine"
-                        style={{ height: 500, width: "100%" }}
-                    >
-                        <AgGridReact
-                            rowData={rowData} // Set the row data
-                            columnDefs={columnDefs} // Set the column definitions
-                            defaultColDef={{
-                                sortable: true,
-                                filter: true,
-                                resizable: true, // Default options for all columns
-                            }}
-                        />
+            <div className="modal-and-sidebar">
+                <div className="modal-container">
+                    <button className="modal-close" onClick={props.onClose}>
+                        &times;
+                    </button>
+                    {props.selectedRow && rowData.length > 0 ? (
+                        <div
+                            className="modal-grid-container"
+                            style={{ height: 500, width: "100%" }}
+                        >
+                            <AgGridReact
+                                rowData={rowData}
+                                columnDefs={columnDefs}
+                                defaultColDef={{
+                                    sortable: true,
+                                    filter: true,
+                                    resizable: true,
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <p>No details available.</p>
+                    )}
+                </div>
+                <div className="modal-sidebar">
+                    <div className="modal-sidebar-element">
+                        <FontAwesomeIcon className="menu-icon" icon={faLightbulbOn as IconProp} />
+                        <p>Insights</p>
                     </div>
-                ) : (
-                    <p>No details available.</p>
-                )}
+                    <div className="modal-sidebar-element">
+                        <FontAwesomeIcon className="menu-icon" icon={faFileChartPie as IconProp} />
+                        <p>Reports</p>
+                    </div>
+                    <div className="modal-sidebar-element">
+                        <FontAwesomeIcon className="menu-icon" icon={faChartLineUp as IconProp} />
+                        <p>Graphs</p>
+                    </div>
+                </div>
             </div>
         </div>
+
     );
 }
