@@ -9,9 +9,22 @@ declare module 'react' {
         webkitdirectory?: boolean;
     }
 }
+
 interface FolderStructure {
     [key: string]: FolderStructure | File;
 }
+
+const ALLOWED_EXTENSIONS = [
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".ppt",
+    ".pptx",
+    ".json",
+    ".csv",
+    ".xls",
+    ".xlsx"
+];
 
 function Upload() {
     const auth = getAuth(app);
@@ -20,6 +33,7 @@ function Upload() {
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [fileTree, setFileTree] = useState<FolderStructure>({});
     const [displayItems, setDisplayItems] = useState<string[]>([]);
+    const [errorMessages, setErrorMessages] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -37,16 +51,38 @@ function Upload() {
 
         const files = Array.from(event.dataTransfer.files);
         if (files.length > 0) {
-            processFiles(files);
+            validateAndProcessFiles(files);
         }
     }, []);
 
     const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files && files.length > 0) {
-            processFiles(Array.from(files));
+            validateAndProcessFiles(Array.from(files));
         }
     }, []);
+
+    const validateAndProcessFiles = (files: File[]) => {
+        const validFiles: File[] = [];
+        const invalidFiles: string[] = [];
+
+        files.forEach((file) => {
+            const extension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            if (ALLOWED_EXTENSIONS.includes(extension)) {
+                validFiles.push(file);
+            } else {
+                invalidFiles.push(file.name);
+            }
+        });
+
+        if (invalidFiles.length > 0) {
+            setErrorMessages(prevErrors => [...prevErrors, ...invalidFiles.map(name => `${name} is not a supported file type.`)]);
+        }
+
+        if (validFiles.length > 0) {
+            processFiles(validFiles);
+        }
+    };
 
     const processFiles = async (files: File[]) => {
         const zipFiles: File[] = [];
@@ -126,7 +162,7 @@ function Upload() {
     const uploadFiles = async (filesToUpload?: File[]) => {
         const files = filesToUpload || uploadedFiles;
         console.log('uploadFiles:', files);
-      
+
         const formData = new FormData();
         files.forEach(file => formData.append('files', file));
         const firebaseUid = user;
@@ -145,7 +181,7 @@ function Upload() {
         } catch (error) {
             console.log('Error uploading files:', error);
         }
-    }
+    };
 
     useEffect(() => {
         console.log('Uploaded Files:', uploadedFiles);
@@ -187,10 +223,14 @@ function Upload() {
                         )}
                     </div>
                 ))}
+                {errorMessages.map((message, index) => (
+                    <div key={index} className="error-message">
+                        {message}
+                    </div>
+                ))}
             </div>
         </div>
     );
-
 }
 
 export default Upload;

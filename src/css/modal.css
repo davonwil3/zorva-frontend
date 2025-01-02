@@ -1,3 +1,7 @@
+* {
+    font-family: sans-serif;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -13,11 +17,11 @@
   
   .modal-and-sidebar {
     display: flex;
-    background: #f1f7ff;
-    padding: 30px;
-    border-radius: 8px;
+    background: #E5E5E5;
+    padding: 26px;
+    border-radius: 12px;
     max-width: 90%;
-    width: 1000px;
+    width: 1150px;
     position: relative;
     align-items: flex-start; /* Align the sidebar and grid container to the top */
   }
@@ -29,9 +33,9 @@
     background-color: white;
     border-radius: 8px;
     height: auto; /* Adjust height to align dynamically */
-    min-width: 120px; /* Ensure a fixed width */
-    margin-left: 20px; /* Add spacing between the sidebar and the grid */
-    padding: 10px;
+    min-width: 85px; /* Ensure a fixed width */
+    margin-left: 15px; /* Add spacing between the sidebar and the grid */
+    padding-top: 23px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
@@ -39,7 +43,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 15px; /* Spacing between sidebar elements */
+    margin-bottom: 27px;
+    width: 100%;
+    cursor: pointer;
+    padding: 10px;
+  }
+
+  .modal-sidebar-element:hover {
+    background-color: #f5f5f5;
+  }
+
+  .modal-sidebar-element p{
+    font-size: 14px;
   }
   
   .menu-icon {
@@ -49,7 +64,6 @@
   
   .modal-container {
     flex-grow: 1; /* Allow the grid container to take up the remaining space */
-    background: red;
     padding: 0;
     border-radius: 8px;
     margin: 0;
@@ -57,15 +71,14 @@
   
   .modal-close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 7px;
+    right: 11px;
     background: transparent;
     border: none;
-    font-size: 24px;
+    font-size: 26px;
     cursor: pointer;
+    color: rgb(77, 75, 75);
   }
   
-  .modal-grid-container {
-   
-  }
+
   

@@ -119,6 +119,8 @@ export default function Datasets() {
                             return <img src="/assets/excel.png" alt="Excel Icon" className='file-icon' />;
                         case 'json':
                             return <img src="/assets/json.png" alt="JSON Icon" className='file-icon' />;
+                        case 'pptx':
+                            return <img src="/assets/ppt.png" alt="PPT Icon" className='file-icon' />;
                         default:
                             return <img src="/assets/doc.png" alt="File Icon" className='file-icon' />;
                     }

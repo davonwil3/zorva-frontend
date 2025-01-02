@@ -4,10 +4,13 @@ import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import * as XLSX from "xlsx";
 import { themeQuartz } from "ag-grid-community";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { faLightbulbOn } from '@fortawesome/pro-light-svg-icons';
-import { faArrowUpFromBracket, faChartLineUp, faFileChartPie } from '@fortawesome/pro-light-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { faLightbulbOn } from "@fortawesome/pro-light-svg-icons";
+import { faChartLineUp, faFileChartPie } from "@fortawesome/pro-light-svg-icons";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
 
 interface FileMetadata {
     id: string;
@@ -21,7 +24,10 @@ export default function Modal(props: any) {
     const [fileData, setFileData] = useState<FileMetadata[]>([]);
     const [rowData, setRowData] = useState<any[]>([]);
     const [columnDefs, setColumnDefs] = useState<any[]>([]);
+    const [googleViewerUrl, setGoogleViewerUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isGridVisible, setIsGridVisible] = useState(false);
+    const [jsonContent, setJsonContent] = useState<object | null>(null);
 
     ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -29,15 +35,14 @@ export default function Modal(props: any) {
         /* Low spacing = very compact */
         spacing: 2,
         /* Changes the color of the grid text */
-        foregroundColor: 'rgb(14, 68, 145)',
+        foregroundColor: "rgb(14, 68, 145)",
         /* Changes the color of the grid background */
-        backgroundColor: 'rgb(241, 247, 255)',
+        backgroundColor: "rgb(241, 247, 255)",
         /* Changes the header color of the top row */
-        headerBackgroundColor: 'rgb(228, 237, 250)',
-        /* Changes the hover color of the row*/
-        rowHoverColor: 'rgb(216, 226, 255)',
+        headerBackgroundColor: "rgb(228, 237, 250)",
+        /* Changes the hover color of the row */
+        rowHoverColor: "rgb(216, 226, 255)",
     });
-
 
     useEffect(() => {
         if (!props.selectedRow || !props.selectedRow.fileID) return;
@@ -63,41 +68,90 @@ export default function Modal(props: any) {
         fetchData();
     }, [props.selectedRow.fileID]);
 
-    // Process and display the Excel file
     useEffect(() => {
         if (fileData.length > 0) {
-            const processExcelData = async () => {
+            const processFileData = async () => {
                 try {
                     const file = fileData[0];
-                    if (!file.data) return;
+                    const jsonExtension = [".json"];
+                    const csvOrExcelExtensions = [".csv", ".xls", ".xlsx"];
+                    const googleViewerExtensions = [
+                        ".pdf",
+                        ".doc",
+                        ".docx",
+                        ".ppt",
+                        ".pptx",
+                    ];
 
-                    const response = await fetch(file.data); // Fetch the Excel file
-                    const arrayBuffer = await response.arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-                    const sheetName = workbook.SheetNames[0]; // Get the first sheet
-                    const sheetData = XLSX.utils.sheet_to_json(
-                        workbook.Sheets[sheetName]
-                    );
+                    // Handle JSON files
+                    if (jsonExtension.some((ext) => file.filename.endsWith(ext))) {
+                        console.log("JSON file detected:", file.filename);
 
-                    // Create dynamic column definitions
-                    const columns = Object.keys(sheetData[0] || {}).map((key) => ({
-                        field: key,
-                        headerName: key.toUpperCase(),
-                        sortable: true,
-                        filter: true,
-                        resizable: true,
-                    }));
+                        const response = await fetch(file.data);
+                        const jsonData = await response.json();
 
-                    setColumnDefs(columns);
-                    setRowData(sheetData);
-                    setLoading(false);
+                        // Set JSON content for React Syntax Highlighter
+                        setJsonContent(jsonData);
+                        setIsGridVisible(false);
+                        setGoogleViewerUrl(null);
+                        return; // Exit after processing JSON
+                    }
+
+                    // Handle CSV/Excel files
+                    if (csvOrExcelExtensions.some((ext) => file.filename.endsWith(ext))) {
+                        console.log("CSV/Excel file detected:", file.filename);
+
+                        const response = await fetch(file.data);
+                        const arrayBuffer = await response.arrayBuffer();
+
+                        // Parse the data
+                        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+                        const sheetName = workbook.SheetNames[0]; // Get the first sheet
+                        const sheetData = XLSX.utils.sheet_to_json(
+                            workbook.Sheets[sheetName]
+                        );
+
+                        const columns = Object.keys(sheetData[0] || {}).map((key) => ({
+                            field: key,
+                            headerName: key.toUpperCase(),
+                            sortable: true,
+                            filter: true,
+                            resizable: true,
+                        }));
+
+                        setColumnDefs(columns);
+                        setRowData(sheetData);
+                        setIsGridVisible(true);
+                        setGoogleViewerUrl(null);
+                        return; // Exit after processing CSV/Excel
+                    }
+
+                    // Handle files supported by Google Docs Viewer
+                    if (googleViewerExtensions.some((ext) => file.filename.endsWith(ext))) {
+                        console.log("Google Docs Viewer file detected:", file.filename);
+
+                        setGoogleViewerUrl(
+                            `https://docs.google.com/gview?url=${encodeURIComponent(
+                                file.data
+                            )}&embedded=true`
+                        );
+                        setIsGridVisible(false);
+                        setJsonContent(null);
+                        return; // Exit after processing for Google Docs Viewer
+                    }
+
+                    console.warn("Unsupported file type:", file.filename);
+                    setGoogleViewerUrl(null);
+                    setIsGridVisible(false);
+                    setJsonContent(null);
                 } catch (error) {
-                    console.error("Error processing Excel file:", error);
+                    console.error("Error processing file:", error);
+                } finally {
                     setLoading(false);
                 }
             };
 
-            processExcelData();
+            processFileData();
         }
     }, [fileData]);
 
@@ -110,7 +164,11 @@ export default function Modal(props: any) {
                     <button className="modal-close" onClick={props.onClose}>
                         &times;
                     </button>
-                    {props.selectedRow && rowData.length > 0 ? (
+
+                    {loading ? (
+                        <p>Loading...</p>
+                    ) : isGridVisible ? (
+                        // Render AG Grid for CSV/Excel files
                         <div
                             className="modal-grid-container"
                             style={{ height: 500, width: "100%" }}
@@ -125,26 +183,63 @@ export default function Modal(props: any) {
                                 }}
                             />
                         </div>
+                    ) : googleViewerUrl ? (
+                        // Render Google Docs Viewer for supported files
+                        <iframe
+                            src={googleViewerUrl}
+                            style={{
+                                width: "100%",
+                                height: "700px",
+                                border: "none",
+                            }}
+                            title="Google Docs Viewer"
+                        ></iframe>
+                    ) : jsonContent ? (
+                        // Render JSON Viewer
+                        <div
+                            style={{
+                                background: "#f9f9f9",
+                                padding: "15px",
+                                borderRadius: "8px",
+                                overflow: "auto",
+                                height: "700px",
+                            }}
+                        >
+                            <SyntaxHighlighter
+                                language="json"
+                                style={atomDark}
+                            >
+                                {JSON.stringify(jsonContent, null, 2)}
+                            </SyntaxHighlighter>
+                        </div>
                     ) : (
-                        <p>No details available.</p>
+                        <p>No details available or unsupported file type.</p>
                     )}
                 </div>
                 <div className="modal-sidebar">
                     <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faLightbulbOn as IconProp} />
+                        <FontAwesomeIcon
+                            className="menu-icon"
+                            icon={faLightbulbOn as IconProp}
+                        />
                         <p>Insights</p>
                     </div>
                     <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faFileChartPie as IconProp} />
+                        <FontAwesomeIcon
+                            className="menu-icon"
+                            icon={faFileChartPie as IconProp}
+                        />
                         <p>Reports</p>
                     </div>
                     <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faChartLineUp as IconProp} />
+                        <FontAwesomeIcon
+                            className="menu-icon"
+                            icon={faChartLineUp as IconProp}
+                        />
                         <p>Graphs</p>
                     </div>
                 </div>
             </div>
         </div>
-
     );
 }
