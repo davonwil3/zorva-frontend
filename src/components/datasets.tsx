@@ -9,7 +9,9 @@ import { faMagnifyingGlass } from '@fortawesome/pro-light-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import Fuse from 'fuse.js';
 import { Switch, FormControlLabel } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
 import Modal from './modal';
+import { faTrash } from '@fortawesome/pro-light-svg-icons';
 
 
 interface FileRow {
@@ -30,7 +32,10 @@ export default function Datasets() {
     const [searchQuery, setSearchQuery] = useState<string>(''); // State for search query
     const [searchByContent, setSearchByContent] = useState<boolean>(false);
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
-    const [rows, setRows] = useState<FileRow[]>([]); 
+    const [rows, setRows] = useState<FileRow[]>([]);
+    const [uniqueModalKey, setUniqueModalKey] = useState(0);
+    const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [fileToDelete, setFileToDelete] = useState<FileRow | null>(null);
 
 
     useEffect(() => {
@@ -44,17 +49,17 @@ export default function Datasets() {
                 });
                 const data = await response.json();
                 console.log('Files:', data.files);
-    
+
                 const formattedRows: FileRow[] = data.files.map((file: any, index: number) => {
                     let correctedFilename = file.filename ?? 'Untitled';
-    
+
                     if (correctedFilename.endsWith('.json')) {
                         const parts = correctedFilename.split('.');
                         if (parts.length > 2) {
                             correctedFilename = parts.slice(0, -1).join('.');
                         }
                     }
-    
+
                     return {
                         id: index + 1,
                         filename: correctedFilename,
@@ -63,7 +68,7 @@ export default function Datasets() {
                         fileID: file.id,
                     };
                 });
-    
+
                 setRows(formattedRows); // Capture initial rows
                 setSearchResults(formattedRows); // Initialize search results
             } catch (error) {
@@ -72,22 +77,61 @@ export default function Datasets() {
                 setLoading(false);
             }
         };
-    
+
         fetchFiles();
     }, []);
-    
+
 
     const handleRowSelection = (selectionModel: GridRowSelectionModel) => {
         if (selectionModel.length > 0) {
             const selectedId = selectionModel[0];
             const row = rows.find((row) => row.id === selectedId);
             setSelectedRow(row || null); // Update selectedRow state
-            console.log('Selected Row:', row);
+            console.log("Selected Row:", row);
+    
+            // Increment the unique key to force modal remount
+            setUniqueModalKey((prevKey) => prevKey + 1);
+    
             setModalOpen(true);
         } else {
             setSelectedRow(null); // Clear selection if no rows are selected
         }
     };
+    
+    const handleDeleteClick = (file: FileRow) => {
+        setFileToDelete(file);
+        setDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (!fileToDelete) return;
+
+        try {
+            const response = await fetch("http://localhost:10000/api/deletefile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fileID: fileToDelete.fileID, firebaseUid }),
+            });
+
+            if (!response.ok) {
+                console.error("Failed to delete file");
+                return;
+            }
+
+            // Update rows and search results after deletion
+            const updatedRows = rows.filter((row) => row.fileID !== fileToDelete.fileID);
+            setRows(updatedRows);
+            setSearchResults((prevResults) =>
+                prevResults.filter((result) => result.fileID !== fileToDelete.fileID)
+            );
+        } catch (error) {
+            console.error("Error deleting file:", error);
+        } finally {
+            setDeleteModalOpen(false);
+            setFileToDelete(null);
+        }
+    };
+
 
     const columns: GridColDef<FileRow>[] = [
         {
@@ -134,7 +178,7 @@ export default function Datasets() {
             headerName: 'Filename',
             type: 'string',
             width: 400,
-        },        
+        },
         {
             field: 'bytes',
             headerName: 'File Size',
@@ -149,7 +193,7 @@ export default function Datasets() {
         {
             field: 'created_at',
             headerName: 'Created At',
-            width: 180,
+            width: 300,
             renderCell: (params: GridCellParams<FileRow, number | null>) => {
                 if (!params.row || !params.row.created_at) {
                     return 'N/A';
@@ -164,8 +208,20 @@ export default function Datasets() {
             type: 'string',
 
         },
+        {
+            field: "delete",
+            headerName: "Delete",
+            width: 100,
+            renderCell: (params: GridCellParams<FileRow>) => (
+                <FontAwesomeIcon
+                    icon={faTrash as IconProp}
+                    style={{ cursor: "pointer", color: "red" }}
+                    onClick={() => handleDeleteClick(params.row)}
+                />
+            ),
+        },
     ];
-    
+
     // Fuse.js search
     const handleSearch = async (query: string) => {
         console.log('Search query:', query);
@@ -333,12 +389,35 @@ export default function Datasets() {
             </Box>
             {selectedRow && (
                 <Modal
+                    key={`${selectedRow.fileID}-${uniqueModalKey}`} // Ensures the modal reinitializes when `selectedRow` changes
                     isOpen={isModalOpen}
                     firebaseUid={firebaseUid}
                     onClose={() => setModalOpen(false)}
                     selectedRow={selectedRow}
                 />
             )}
+                 <Dialog
+                open={isDeleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                aria-labelledby="delete-confirmation-title"
+                aria-describedby="delete-confirmation-description"
+            >
+                <DialogTitle id="delete-confirmation-title">Confirm Deletion</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="delete-confirmation-description">
+                        Are you sure you want to delete the file{" "}
+                        <strong>{fileToDelete?.filename}</strong>? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDeleteModalOpen(false)} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleDeleteConfirm} color="primary" autoFocus>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
