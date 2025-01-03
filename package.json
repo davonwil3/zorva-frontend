@@ -13,6 +13,7 @@
     "@fortawesome/pro-regular-svg-icons": "^6.6.0",
     "@fortawesome/pro-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@lottiefiles/dotlottie-react": "^0.12.0",
     "@mui/material": "^6.3.0",
     "@mui/x-data-grid": "^7.23.5",
     "@react-pdf-viewer/core": "^3.12.0",
@@ -29,6 +30,7 @@
     "firebase": "^11.0.2",
     "fuse.js": "^7.0.0",
     "jszip": "^3.10.1",
+    "lodash.debounce": "^4.0.8",
     "mammoth": "^1.8.0",
     "prismjs": "^1.29.0",
     "react": "^18.3.1",
@@ -67,6 +69,7 @@
     ]
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.9",
     "@types/prismjs": "^1.26.5",
     "@types/react-syntax-highlighter": "^15.5.13"
   }

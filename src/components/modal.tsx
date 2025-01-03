@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../css/modal.css";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import * as XLSX from "xlsx";
-import { themeQuartz } from "ag-grid-community";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faLightbulbOn, faChartLineUp, faFileChartPie } from "@fortawesome/pro-light-svg-icons";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+// Import your PDFViewer component
+import PDFViewer from "./PDFViewer"; // Adjust the path based on your project structure
 
 interface FileMetadata {
     id: string;
@@ -22,72 +24,70 @@ export default function Modal(props: any) {
     const [fileData, setFileData] = useState<FileMetadata[]>([]);
     const [rowData, setRowData] = useState<any[]>([]);
     const [columnDefs, setColumnDefs] = useState<any[]>([]);
-    const [googleViewerUrl, setGoogleViewerUrl] = useState<string | null>(null);
+    const [microsoftViewerUrl, setMicrosoftViewerUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [jsonContent, setJsonContent] = useState<object | null>(null);
     const [contentType, setContentType] = useState<string>(""); // Determines which content to display
+    const [error, setError] = useState<string | null>(null); // To handle errors
 
     ModuleRegistry.registerModules([AllCommunityModule]);
 
-    useEffect(() => {
-        if (!props.selectedRow || !props.selectedRow.fileID) {
-            resetStates();
-            return;
-        }
+    // Define file extension arrays
+    const jsonExtension = [".json"];
+    const csvOrExcelExtensions = [".csv", ".xls", ".xlsx"];
+    const pdfExtensions = [".pdf"];
+    const microsoftViewerExtensions = [".doc", ".docx", ".ppt", ".pptx"]; // Removed ".pdf"
 
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch("http://localhost:10000/api/getfilesbyID", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        fileIDs: [props.selectedRow.fileID],
-                        firebaseUid: props.firebaseUid,
-                    }),
-                });
-                const data = await response.json();
+    // Fetch function without debounce
+    const fetchAndProcessData = useCallback(async () => {
+        setLoading(true);
+        setError(null); // Reset error state
+        setContentType(""); // Reset content type
+        setMicrosoftViewerUrl(null); // Reset viewer URL
 
-                if (data?.files?.length > 0) {
-                    setFileData(data.files);
-                } else {
-                    setFileData([]);
-                    setContentType("none"); // No content to display
-                }
-            } catch (error) {
-                console.error("Error fetching file data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        try {
+            console.log("Fetching file data for fileID:", props.selectedRow.fileID);
+            // Fetch file data
+            const response = await fetch("http://localhost:10000/api/getfilesbyID", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fileIDs: [props.selectedRow.fileID],
+                    firebaseUid: props.firebaseUid,
+                }),
+            });
+            const data = await response.json();
+            console.log("API response data:", data);
 
-        fetchData();
-    }, [props.selectedRow.fileID, props.firebaseUid]);
+            if (data?.files?.length > 0) {
+                setFileData(data.files);
+                const file = data.files[0];
+                const filename = props.selectedRow.filename;
+                const fileUrl = file.data;
 
-    useEffect(() => {
-        const processFileData = async () => {
-            if (fileData.length === 0) {
-                setContentType("none");
-                return;
-            }
+                console.log("Signed URL:", fileUrl);
 
-            try {
-                const file = fileData[0];
-                const jsonExtension = [".json"];
-                const csvOrExcelExtensions = [".csv", ".xls", ".xlsx"];
-                const googleViewerExtensions = [".pdf", ".doc", ".docx", ".ppt", ".pptx"];
-
-                if (jsonExtension.some((ext) => props.selectedRow.filename.endsWith(ext))) {
-                    const response = await fetch(file.data);
-                    const jsonData = await response.json();
+                // Determine file type
+                if (jsonExtension.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                    // Handle JSON files
+                    console.log("Handling JSON file:", filename);
+                    const jsonResponse = await fetch(fileUrl);
+                    if (!jsonResponse.ok) {
+                        throw new Error("Failed to fetch JSON file.");
+                    }
+                    const jsonData = await jsonResponse.json();
+                    console.log("Fetched JSON content:", jsonData);
                     setJsonContent(jsonData);
                     setContentType("json");
-                } else if (csvOrExcelExtensions.some((ext) => props.selectedRow.filename.endsWith(ext))) {
-                    const response = await fetch(file.data);
-                    const arrayBuffer = await response.arrayBuffer();
+                } else if (csvOrExcelExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                    // Handle CSV or Excel files
+                    console.log("Handling CSV/Excel file:", filename);
+                    const arrayBuffer = await (await fetch(fileUrl)).arrayBuffer();
                     const workbook = XLSX.read(arrayBuffer, { type: "array" });
                     const sheetName = workbook.SheetNames[0];
                     const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+                    console.log("Parsed sheet data:", sheetData);
 
                     if (sheetData.length > 0) {
                         const columns = Object.keys(sheetData[0] as object).map((key) => ({
@@ -101,42 +101,43 @@ export default function Modal(props: any) {
                         setRowData(sheetData);
                         setContentType("grid");
                     } else {
-                        setContentType("none");
+                        setError("The file is empty.");
                     }
-                } else if (googleViewerExtensions.some((ext) => props.selectedRow.filename.endsWith(ext))) {
-                    setGoogleViewerUrl(
-                        `https://docs.google.com/gview?url=${encodeURIComponent(
-                            file.data
-                        )}&embedded=true`
-                    );
-                    setContentType("googleViewer");
+                } else if (pdfExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                    // Handle PDF files using PDFViewer
+                    console.log("Handling PDF file:", filename);
+                    setContentType("pdf");
+                } else if (microsoftViewerExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                    // Handle files viewable by Microsoft Office Online Viewer
+                    console.log("Handling Microsoft Viewer for file:", filename);
+                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+                    console.log("Microsoft Viewer URL:", viewerUrl);
+                    setMicrosoftViewerUrl(viewerUrl);
+                    setContentType("microsoftViewer");
                 } else {
-                    setContentType("none");
+                    // Unsupported file type
+                    console.log("Unsupported file type:", filename);
+                    setError("Unsupported file type.");
                 }
-            } catch (error) {
-                console.error("Error processing file data:", error);
-                setContentType("none");
+            } else {
+                setError("No files found.");
             }
-        };
-
-        if (fileData.length > 0) processFileData();
-    }, [fileData]);
-
-    const resetStates = () => {
-        setFileData([]);
-        setRowData([]);
-        setColumnDefs([]);
-        setGoogleViewerUrl(null);
-        setJsonContent(null);
-        setContentType("");
-        setLoading(false);
-    };
+        } catch (error: any) {
+            console.error("Error fetching or processing file data:", error);
+            setError(error.message || "An error occurred while loading the file.");
+        } finally {
+            setLoading(false);
+            console.log("Loading state set to false.");
+        }
+    }, [props.selectedRow.fileID, props.firebaseUid, props.selectedRow.filename]);
 
     useEffect(() => {
-        if (!props.isOpen) {
-            resetStates();
+        if (props.isOpen) {
+            fetchAndProcessData();
         }
-    }, [props.isOpen]);
+
+        // No debounce cleanup needed
+    }, [fetchAndProcessData, props.isOpen]);
 
     if (!props.isOpen) return null;
 
@@ -150,6 +151,8 @@ export default function Modal(props: any) {
 
                     {loading ? (
                         <p>Loading...</p>
+                    ) : error ? (
+                        <p>No details available or unsupported file type: {error}</p>
                     ) : contentType === "grid" ? (
                         <div className="modal-grid-container" style={{ height: 700, width: "100%" }}>
                             <AgGridReact
@@ -162,12 +165,26 @@ export default function Modal(props: any) {
                                 }}
                             />
                         </div>
-                    ) : contentType === "googleViewer" ? (
-                        <iframe
-                            src={googleViewerUrl!}
-                            style={{ width: "100%", height: "700px", border: "none" }}
-                            title="Google Docs Viewer"
-                        ></iframe>
+                    ) : contentType === "microsoftViewer" ? (
+                        microsoftViewerUrl ? (
+                            <iframe
+                                key={microsoftViewerUrl} // Forces re-render when URL changes
+                                src={microsoftViewerUrl}
+                                style={{ width: "100%", height: "700px", border: "none" }}
+                                title="Microsoft Office Viewer"
+                                onError={(e) => {
+                                    console.error("Iframe Load Error:", e);
+                                    setError("Failed to load document in viewer.");
+                                }}
+                                onLoad={() => {
+                                    console.log("Iframe loaded successfully.");
+                                }}
+                            ></iframe>
+                        ) : (
+                            <p>Loading viewer...</p>
+                        )
+                    ) : contentType === "pdf" ? (
+                        <PDFViewer pdfUrl={fileData[0].data} />
                     ) : contentType === "json" ? (
                         <div
                             style={{

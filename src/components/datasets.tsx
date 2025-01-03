@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { DataGrid, GridCellParams, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
 import { getAuth } from 'firebase/auth';
 import { app } from '../index';
 import '../css/datasets.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/pro-light-svg-icons';
+import { faMagnifyingGlass, faTrash } from '@fortawesome/pro-light-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import Fuse from 'fuse.js';
-import { Switch, FormControlLabel } from '@mui/material';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
-import Modal from './modal';
-import { faTrash } from '@fortawesome/pro-light-svg-icons';
-
+import { Switch, FormControlLabel, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import Modal from './modal'; // Ensure the path is correct
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';  // Keep only one import
 
 interface FileRow {
     id: number;
@@ -36,7 +34,10 @@ export default function Datasets() {
     const [uniqueModalKey, setUniqueModalKey] = useState(0);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
     const [fileToDelete, setFileToDelete] = useState<FileRow | null>(null);
+    const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]); // Controlled selectionModel
 
+    // Overlay state to control the darkened screen + loading icon
+    const [isOverlayVisible, setOverlayVisible] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -79,8 +80,7 @@ export default function Datasets() {
         };
 
         fetchFiles();
-    }, []);
-
+    }, [firebaseUid]);
 
     const handleRowSelection = (selectionModel: GridRowSelectionModel) => {
         if (selectionModel.length > 0) {
@@ -88,16 +88,16 @@ export default function Datasets() {
             const row = rows.find((row) => row.id === selectedId);
             setSelectedRow(row || null); // Update selectedRow state
             console.log("Selected Row:", row);
-    
+
             // Increment the unique key to force modal remount
             setUniqueModalKey((prevKey) => prevKey + 1);
-    
+
             setModalOpen(true);
         } else {
             setSelectedRow(null); // Clear selection if no rows are selected
         }
     };
-    
+
     const handleDeleteClick = (file: FileRow) => {
         setFileToDelete(file);
         setDeleteModalOpen(true);
@@ -131,7 +131,6 @@ export default function Datasets() {
             setFileToDelete(null);
         }
     };
-
 
     const columns: GridColDef<FileRow>[] = [
         {
@@ -206,7 +205,6 @@ export default function Datasets() {
             field: 'fileID',
             headerName: 'File ID',
             type: 'string',
-
         },
         {
             field: "delete",
@@ -216,7 +214,10 @@ export default function Datasets() {
                 <FontAwesomeIcon
                     icon={faTrash as IconProp}
                     style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => handleDeleteClick(params.row)}
+                    onClick={(e) => {
+                        e.stopPropagation(); // Prevent row selection
+                        handleDeleteClick(params.row);
+                    }}
                 />
             ),
         },
@@ -224,49 +225,40 @@ export default function Datasets() {
 
     // Fuse.js search
     const handleSearch = async (query: string) => {
-        console.log('Search query:', query);
-
         if (!query.trim()) {
-            console.log('Empty query, resetting search results to original rows');
-            setSearchResults(rows);
+            setSearchResults([]); // Reset search results
             return;
         }
 
         if (searchByContent) {
-            console.log('Performing content-based search via backend API');
+            // Display overlay when searching by content
+            setOverlayVisible(true);
             try {
-                const response = await fetch('http://localhost:10000/api/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        firebaseUid,
-                        query,
-                        searchByFilename: false,
-                    }),
+                const response = await fetch("http://localhost:10000/api/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ firebaseUid, query }),
                 });
 
                 if (!response.ok) {
-                    console.error('Error fetching search results from API');
+                    console.error("Error fetching search results from API");
                     return;
                 }
 
                 const data = await response.json();
-                console.log('Full API response:', data);
-
                 const fileIDs = data.fileIDs || [];
-                console.log('File IDs from API:', fileIDs);
-
                 const matchedRows = rows.filter((row) => fileIDs.includes(String(row.fileID)));
-                console.log('File IDs in rows:', rows.map((row) => row.fileID));
-                console.log('Matched rows (content-based):', matchedRows);
-
                 setSearchResults(matchedRows);
             } catch (error) {
-                console.error('Error during content-based search:', error);
+                console.error("Error during content-based search:", error);
+            } finally {
+                // Hide after 3 seconds (simulate some processing/loading time)
+                setTimeout(() => {
+                    setOverlayVisible(false);
+                }, 3000);
             }
         }
     };
-
 
     // Perform local filename search on the go
     const handleLocalSearch = (query: string) => {
@@ -382,21 +374,33 @@ export default function Datasets() {
                         },
                     }}
                     columnVisibilityModel={{
-                        fileID: false, // Set to `false` to hide this column
+                        fileID: false, // Hide the 'fileID' column
                     }}
-                    onRowSelectionModelChange={handleRowSelection}
+                    rowSelectionModel={selectionModel} // Controlled selectionModel
+                    onRowSelectionModelChange={(newSelectionModel) => {
+                        setSelectionModel(newSelectionModel);
+                        handleRowSelection(newSelectionModel);
+                    }}
                 />
             </Box>
+
+            {/* Modal for row details */}
             {selectedRow && (
                 <Modal
                     key={`${selectedRow.fileID}-${uniqueModalKey}`} // Ensures the modal reinitializes when `selectedRow` changes
                     isOpen={isModalOpen}
                     firebaseUid={firebaseUid}
-                    onClose={() => setModalOpen(false)}
+                    onClose={() => {
+                        setModalOpen(false);
+                        setSelectedRow(null); // Reset selectedRow to unmount Modal
+                        setSelectionModel([]); // Clear the selection
+                    }}
                     selectedRow={selectedRow}
                 />
             )}
-                 <Dialog
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
                 open={isDeleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 aria-labelledby="delete-confirmation-title"
@@ -418,6 +422,35 @@ export default function Datasets() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Overlay with Lottie animation + message (only shows when isOverlayVisible is true) */}
+            {isOverlayVisible && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 9999,
+                        color: '#fff'
+                    }}
+                >
+                    <h2 style={{position: 'relative', top: '23px'}}>Searching for file by content</h2>
+                    <iframe
+                        src="https://lottie.host/embed/6184f9b9-4887-4c03-9f6c-7fd810ab2199/NvGHmd2p7f.lottie"
+                        width="400"   // Adjust the width as needed
+                        height="350"  // Adjust the height as needed
+                        style={{ border: 'none', marginBottom: '10px' }} // Removes iframe border
+                    />
+                </div>
+
+            )}
         </div>
     );
 }

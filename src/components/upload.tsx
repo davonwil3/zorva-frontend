@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import JSZip from "jszip";
-import '../css/upload.css';
+import "../css/upload.css";
 import { getAuth } from "firebase/auth";
-import { app } from '../index';
+import { app } from "../index";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 
-declare module 'react' {
+declare module "react" {
     interface InputHTMLAttributes<T> extends React.HTMLAttributes<T> {
         webkitdirectory?: boolean;
     }
@@ -23,7 +25,7 @@ const ALLOWED_EXTENSIONS = [
     ".json",
     ".csv",
     ".xls",
-    ".xlsx"
+    ".xlsx",
 ];
 
 function Upload() {
@@ -34,6 +36,8 @@ function Upload() {
     const [fileTree, setFileTree] = useState<FolderStructure>({});
     const [displayItems, setDisplayItems] = useState<string[]>([]);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
+    const [uploadComplete, setUploadComplete] = useState(false); // New upload status
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -67,7 +71,7 @@ function Upload() {
         const invalidFiles: string[] = [];
 
         files.forEach((file) => {
-            const extension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
             if (ALLOWED_EXTENSIONS.includes(extension)) {
                 validFiles.push(file);
             } else {
@@ -76,7 +80,10 @@ function Upload() {
         });
 
         if (invalidFiles.length > 0) {
-            setErrorMessages(prevErrors => [...prevErrors, ...invalidFiles.map(name => `${name} is not a supported file type.`)]);
+            setErrorMessages((prevErrors) => [
+                ...prevErrors,
+                ...invalidFiles.map((name) => `${name} is not a supported file type.`),
+            ]);
         }
 
         if (validFiles.length > 0) {
@@ -87,25 +94,22 @@ function Upload() {
     const processFiles = async (files: File[]) => {
         const zipFiles: File[] = [];
         const otherFiles: File[] = [];
-        const folderNames: Set<string> = new Set(); // To track unique root folder names
-        const processedFiles: File[] = []; // Flat list of individual files
+        const folderNames: Set<string> = new Set();
+        const processedFiles: File[] = [];
 
-        // Separate ZIP files and other files
         files.forEach((file) => {
-            if (file.name.endsWith('.zip')) {
+            if (file.name.endsWith(".zip")) {
                 zipFiles.push(file);
             } else {
                 otherFiles.push(file);
             }
         });
 
-        // Helper function to get the root folder name
         const getRootFolderName = (path: string) => {
-            const parts = path.split('/');
-            return parts.length > 1 ? parts[0] + '/' : null;
+            const parts = path.split("/");
+            return parts.length > 1 ? parts[0] + "/" : null;
         };
 
-        // Process ZIP files
         for (const zipFile of zipFiles) {
             const zip = await JSZip.loadAsync(zipFile);
 
@@ -113,79 +117,75 @@ function Upload() {
                 Object.keys(zip.files).map(async (relativePath) => {
                     const zipEntry = zip.files[relativePath];
 
-                    // Skip system files and folders
                     if (
-                        relativePath.startsWith('__MACOSX') ||
-                        relativePath.endsWith('.DS_Store') ||
-                        relativePath.endsWith('Thumbs.db') ||
-                        relativePath.endsWith('desktop.ini')
+                        relativePath.startsWith("__MACOSX") ||
+                        relativePath.endsWith(".DS_Store") ||
+                        relativePath.endsWith("Thumbs.db") ||
+                        relativePath.endsWith("desktop.ini")
                     ) {
                         return;
                     }
 
-                    // Extract the root folder name if applicable
                     const rootFolder = getRootFolderName(relativePath);
                     if (rootFolder) {
                         folderNames.add(rootFolder);
                     }
 
-                    // If it's a file, process it (but don't display it directly in the UI)
                     if (!zipEntry.dir) {
-                        const blob = await zipEntry.async('blob');
+                        const blob = await zipEntry.async("blob");
                         const file = new File([blob], relativePath);
-                        processedFiles.push(file); // Add to processed files
+                        processedFiles.push(file);
                     }
                 })
             );
         }
 
-        // Handle non-ZIP files (add them as files at the root level)
         otherFiles.forEach((file) => {
             processedFiles.push(file);
         });
 
-        // Build display items for the UI
-        const displayItemsArray = Array.from(folderNames); // Add folder names
+        const displayItemsArray = Array.from(folderNames);
         processedFiles.forEach((file) => {
-            if (!file.name.includes('/')) {
-                displayItemsArray.push(file.name); // Add file names (if not part of a folder)
+            if (!file.name.includes("/")) {
+                displayItemsArray.push(file.name);
             }
         });
 
-        // Update states
-        setUploadedFiles(processedFiles); // Actual files for database upload
-        setDisplayItems(displayItemsArray); // UI display items
+        setUploadedFiles(processedFiles);
+        setDisplayItems(displayItemsArray);
+
+        setErrorMessages([]); // Clear errors
+        setUploadComplete(true); // Mark upload complete
+
+        setTimeout(() => {
+            setUploadComplete(false); // Hide after 3 seconds
+        }, 3000);
 
         uploadFiles(processedFiles);
     };
 
     const uploadFiles = async (filesToUpload?: File[]) => {
         const files = filesToUpload || uploadedFiles;
-        console.log('uploadFiles:', files);
 
         const formData = new FormData();
-        files.forEach(file => formData.append('files', file));
+        files.forEach((file) => formData.append("files", file));
+
         const firebaseUid = user;
         if (firebaseUid) {
-            formData.append('firebaseUid', firebaseUid);
+            formData.append("firebaseUid", firebaseUid);
         }
-        console.log('Firebase:', firebaseUid);
+
         try {
-            const response = await fetch('http://localhost:10000/api/uploadfiles', {
-                method: 'POST',
+            const response = await fetch("http://localhost:10000/api/uploadfiles", {
+                method: "POST",
                 body: formData,
             });
             const result = await response.json();
-            console.log('Upload result:', result);
-
+            console.log("Upload result:", result);
         } catch (error) {
-            console.log('Error uploading files:', error);
+            console.log("Error uploading files:", error);
         }
     };
-
-    useEffect(() => {
-        console.log('Uploaded Files:', uploadedFiles);
-    }, [uploadedFiles]);
 
     const handleButtonClick = () => {
         fileInputRef.current?.click();
@@ -193,7 +193,7 @@ function Upload() {
 
     return (
         <div
-            className={`upload-box ${isDragging ? 'dragging' : ''}`}
+            className={`upload-box ${isDragging ? "dragging" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -208,24 +208,37 @@ function Upload() {
             <input
                 type="file"
                 ref={fileInputRef}
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 onChange={handleFileSelect}
-                multiple // Allow multiple file selection
-                webkitdirectory // Allow directory upload
+                multiple
+                webkitdirectory
             />
+            <div className="upload-status">
+                {uploadComplete && (
+                    <div className="upload-complete">
+                        <FontAwesomeIcon icon={faCheckCircle} className="success-icon" />
+                        <span>Upload Complete</span>
+                    </div>
+                )}
+                {errorMessages.map((message, index) => (
+                    <div key={index} className="error-message">
+                        <FontAwesomeIcon icon={faTimesCircle} className="error-icon" />
+                        {message}
+                    </div>
+                ))}
+            </div>
             <div className="uploaded-files">
                 {displayItems.map((item, index) => (
                     <div key={index} className="uploaded-file">
-                        {item.endsWith('/') ? (
-                            <span className="uploaded-filename"><img src="/assets/folder.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}</span>
+                        {item.endsWith("/") ? (
+                            <span className="uploaded-filename">
+                                <img src="/assets/folder.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}
+                            </span>
                         ) : (
-                            <span className="uploaded-filename"><img src="/assets/file.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}</span>
+                            <span className="uploaded-filename">
+                                <img src="/assets/file.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}
+                            </span>
                         )}
-                    </div>
-                ))}
-                {errorMessages.map((message, index) => (
-                    <div key={index} className="error-message">
-                        {message}
                     </div>
                 ))}
             </div>

@@ -72,3 +72,37 @@
     font-size: 14px;
     font-weight: 500;
 }
+.upload-status {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.upload-complete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: green;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.success-icon {
+    margin-right: 8px;
+}
+
+.error-messages {
+    margin-top: 10px;
+    color: red;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.error-icon {
+    margin-right: 8px;
+    color: red;
+}

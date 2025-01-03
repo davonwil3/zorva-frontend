@@ -43,12 +43,12 @@ function Dashboard() {
                         <p>Insights</p>
                     </div>
                     <div className="icon">
-                        <FontAwesomeIcon className="menu-icon" icon={faFileChartPie as IconProp} />
-                        <p>Reports</p>
-                    </div>
-                    <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faChartLineUp as IconProp} />
                         <p>Graphs</p>
+                    </div>
+                    <div className="icon">
+                        <FontAwesomeIcon className="menu-icon" icon={faFileChartPie as IconProp} />
+                        <p>Reports</p>
                     </div>
                     <div className="icon">
                         <FontAwesomeIcon className="menu-icon" icon={faWrench as IconProp} />
