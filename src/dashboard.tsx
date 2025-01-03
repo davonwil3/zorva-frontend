@@ -10,6 +10,7 @@ import { faQuestion } from "@fortawesome/pro-light-svg-icons";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faLightbulbOn } from '@fortawesome/pro-light-svg-icons';
 import DataSets from "./components/datasets";
+import Insights from "./components/insights";
 
 function Dashboard() {
     const [currentView, setCurrentView] = useState('datasets');
@@ -38,7 +39,7 @@ function Dashboard() {
                         <FontAwesomeIcon className="menu-icon" icon={faDatabase as IconProp} />
                         <p>Datasets</p>
                     </div>
-                    <div className="icon">
+                    <div className="icon" onClick={() => handleViewChange('insights')}>
                         <FontAwesomeIcon className="menu-icon" icon={faLightbulbOn as IconProp} />
                         <p>Insights</p>
                     </div>
@@ -66,6 +67,7 @@ function Dashboard() {
                 <div className="dashboard">
                     {currentView === 'upload' && <Upload />}
                     {currentView === 'datasets' && <DataSets />}
+                    {currentView === 'insights' && <Insights />}
                 </div>
             </div>
         </div>
