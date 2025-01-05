@@ -10,8 +10,8 @@ function SignIn() {
 
   const auth = getAuth(app);
   const navigate = useNavigate();
-  const [email, setEmail] = React.useState('adam3@gmail.com');
-  const [password, setPassword] = React.useState('freshman2');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   const signInWithEmail = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,7 +44,7 @@ function SignIn() {
     <div className="flex h-screen bg-white overflow-hidden  min-h-[640px] md:min-h-[800px] lg:min-h-[850px]">
       {/* Left Side - Fixed Height Image */}
       <div
-        className="hidden md:flex w-[40%] h-full bg-cover bg-center"
+        className="hidden md:flex w-[38%] h-full bg-cover bg-center"
         style={{ backgroundImage: "url('/assets/auth-image1.png')" }}
       ></div>
 

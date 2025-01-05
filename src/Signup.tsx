@@ -60,7 +60,7 @@ function SignUp() {
     <div className="flex h-screen bg-white overflow-hidden min-h-[640px] md:min-h-[800px] lg:min-h-[850px]">
       {/* Left Side - Fixed Height Image */}
       <div
-        className="hidden md:flex w-[40%] h-full bg-cover bg-center"
+        className="hidden md:flex w-[38%] h-full bg-cover bg-center"
         style={{ backgroundImage: "url('/assets/auth-image1.png')" }}
       ></div>
 
