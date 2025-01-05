@@ -7,6 +7,7 @@ import { getAnalytics } from "firebase/analytics";
 import SignIn from './signin';
 import SignUp from './signup';
 import ProtectedRoute  from './protected-route';
+import LandingPage from './landingpage';
 
 
 const firebaseConfig = {
@@ -28,7 +29,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <Router>
     <Routes>
-      <Route path="/" element={<SignUp />} />
+      <Route path="/" element={< LandingPage />} />
       <Route path="/dashboard" element= {
         <ProtectedRoute element={<Dashboard />} />
       } />
