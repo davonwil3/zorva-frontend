@@ -10,7 +10,7 @@ export default function Pricing() {
     return (
         <div className="bg-white">
             <Nav />
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
                 <div className="container">
                     <div className="w-full max-w-lg">
                         <p className="mb-3 font-semibold md:mb-4">Tagline</p>
@@ -36,7 +36,7 @@ export default function Pricing() {
                 </div>
             </section>
             <section
-                id="relume"
+               
                 className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28"
                 style={{ paddingTop: "0px" }}
             >
@@ -279,7 +279,7 @@ export default function Pricing() {
                     </Tabs.Root>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div>
@@ -310,7 +310,6 @@ export default function Pricing() {
                 </div>
             </section>
             <section
-                id="relume"
                 className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28"
                 style={{ paddingTop: '0px' }}
             >

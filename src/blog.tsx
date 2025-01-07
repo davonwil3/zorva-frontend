@@ -9,7 +9,7 @@ export default function Blog() {
     return (
         <div className="bg-white">
             <Nav />
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28">
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28">
                 <div className="container">
                     <div className="mb-12 md:mb-18 lg:mb-20">
                         <div className="mx-auto w-full max-w-lg text-center">
@@ -124,7 +124,7 @@ export default function Blog() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container">
                     <div className="mb-12 md:mb-18 lg:mb-20">
                         <div className="w-full max-w-lg">
@@ -191,7 +191,7 @@ export default function Blog() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section  className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container max-w-lg text-center">
                     <h2 className="rb-5 mb-5 text-3xl font-bold text-text-alternative md:mb-6 md:text-4xl lg:text-5xl">
                         Medium length heading goes here

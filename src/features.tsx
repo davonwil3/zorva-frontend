@@ -9,7 +9,7 @@ export default function Features() {
     return (
         <div className="bg-white">
             <Nav />
-            <section id="relume" className=" flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "90px" }}>
+            <section className=" flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "90px" }}>
                 <div className="container max-w-lg text-center">
                     <p className="mb-3 font-semibold md:mb-4">Tagline</p>
                     <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">Short heading here</h1>
@@ -20,7 +20,7 @@ export default function Features() {
                    
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
                 <div className="container">
                     <div
                         className="grid grid-cols-1 gap-y-12 md:grid-flow-row md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20"
@@ -61,7 +61,7 @@ export default function Features() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
                 <div className="container">
                     <div
                         className="grid grid-cols-1 gap-y-12 md:grid-flow-row md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20"
@@ -145,7 +145,7 @@ export default function Features() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div className="order-2 md:order-1">
@@ -197,7 +197,7 @@ export default function Features() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: '0px' }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div>
@@ -251,7 +251,6 @@ export default function Features() {
                 </div>
             </section>
             <section
-                id="relume"
                 className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28"
                 style={{ paddingTop: '0px' }}
             >

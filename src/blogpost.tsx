@@ -11,7 +11,7 @@ export default function BlogPost() {
     return (
         <div className="bg-white">
             <Nav />
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "110px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "110px" }}>
                 <div className="container">
                     <div className="mx-auto mb-12 flex w-full max-w-3xl flex-col items-start justify-start md:mb-16 lg:mb-20">
                         {/* Breadcrumb navigation */}
@@ -148,7 +148,7 @@ export default function BlogPost() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.5fr_1.5fr] lg:gap-x-20">
                         <div className="order-last lg:order-none">
@@ -311,7 +311,7 @@ export default function BlogPost() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
                 <div className="container">
                     <div className="flex flex-col items-center border border-border-primary p-8 md:p-12 lg:p-16">
                         <div className="max-w-lg text-center">

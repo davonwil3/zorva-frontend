@@ -7,7 +7,7 @@ export default function Integrations() {
         <div className="bg-white">
             <Nav />
 
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
                 <div className="container">
                     <div className="flex flex-col">
                         <div className="rb-12 mb-12 md:mb-18 lg:mb-20">
@@ -78,7 +78,7 @@ export default function Integrations() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-12 md:py-16 lg:py-20" style={{ paddingTop: "90px" }}>
+            <section  className="flex flex-col justify-center items-center px-[5%] py-12 md:py-16 lg:py-20" style={{ paddingTop: "90px" }}>
                 <div className="container">
                     <h1
                         className="mx-auto mb-6 w-full max-w-lg text-center text-base font-bold leading-[1.2] md:mb-8 md:text-md md:leading-[1.2]"
@@ -134,7 +134,7 @@ export default function Integrations() {
                     </div>
                 </div>
             </section>
-            <section id="relume" className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28">
+            <section  className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28">
                 <div className="container">
                     <div className="w-full max-w-lg">
                         <h2 className="mb-5 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
@@ -149,8 +149,9 @@ export default function Integrations() {
                                 className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3"
                                 title="Button"
                             >
-                                Button</button
-                            ><button
+                                Button
+                            </button>
+                            <button
                                 className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-6 py-3"
                                 title="Button"
                             >

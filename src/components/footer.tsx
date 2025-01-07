@@ -18,7 +18,7 @@ export default function Footer() {
                     <ul
                         className="grid grid-flow-row grid-cols-1 items-start justify-center justify-items-start gap-y-4 md:grid-flow-col md:grid-cols-[max-content] md:justify-start md:justify-items-start md:gap-x-6"
                     >
-                        <li className="font-semibold"><a href="#">Link One</a></li>
+                        <li className="font-semibold"><Link to={'/features'}>Features</Link></li>
                         <li className="font-semibold"><a href="#">Link Two</a></li>
                         <li className="font-semibold"><a href="#">Link Three</a></li>
                         <li className="font-semibold"><a href="#">Link Four</a></li>
