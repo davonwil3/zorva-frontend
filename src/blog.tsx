@@ -73,7 +73,7 @@ export default function Blog() {
                                 readTime="5 min read"
                                 title="Blog title heading will go here"
                                 description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros."
-                                href="#"
+                                href={1}
                             />
                             <BlogCard
                                 imageUrl="https://d22po4pjz3o32e.cloudfront.net/placeholder-image-landscape.svg"

@@ -66,18 +66,20 @@ export default function Nav() {
                     </div>
 
                     <div className="mt-6 flex flex-col items-center gap-4 lg:ml-4 lg:mt-0 lg:flex-row">
-                        <button
+                        <Link
+                            to="/signin"
                             className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-5 py-2 w-full"
-                            title="Button"
+                            title="Sign In"
                         >
-                            Button
-                        </button>
-                        <button
+                            Sign In
+                        </Link>
+                        <Link
+                            to="/signup"
                             className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-5 py-2 w-full"
-                            title="Button"
+                            title="Sign Up"
                         >
-                            Button
-                        </button>
+                            Sign Up
+                        </Link>
                     </div>
                 </div>
             </div>

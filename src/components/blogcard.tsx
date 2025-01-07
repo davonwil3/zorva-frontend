@@ -1,7 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 
 
 export default function BlogCard(props: any){
+
     const imageUrl = props.imageUrl;
     const altText = props.altText;
     const category = props.category;
@@ -14,13 +17,10 @@ export default function BlogCard(props: any){
     return (
       <div className="flex size-full flex-col items-center justify-start border border-border-primary">
         {/* Image + link */}
-        <a href={href} className="w-full">
-          <img
-            src={imageUrl}
-            alt={altText}
-            className="aspect-[3/2] size-full object-cover"
-          />
-        </a>
+       <Link to={`/blogpost/${href}`}>
+          <img src={imageUrl} alt={altText} className="aspect-[3/2] size-full object-cover" />
+        </Link>
+
   
         {/* Card Content */}
         <div className="px-5 py-6 md:p-6">

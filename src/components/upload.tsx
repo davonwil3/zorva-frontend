@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import JSZip from "jszip";
-import "../css/upload.css";
 import { getAuth } from "firebase/auth";
 import { app } from "../index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import '../css/index.css'
 
 declare module "react" {
     interface InputHTMLAttributes<T> extends React.HTMLAttributes<T> {
@@ -193,50 +193,78 @@ function Upload() {
 
     return (
         <div
-            className={`upload-box ${isDragging ? "dragging" : ""}`}
+            className={`flex flex-col items-center justify-center w-full max-w-xl h-[309px] border-2 border-dashed border-gray-300 p-5 text-center transition-colors rounded-lg overflow-hidden ${isDragging ? "bg-gray-100" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+
         >
-            <div className="upload-header">
-                <div className="upload-pic"></div>
-                <p>Drag and Drop files to upload</p>
-                <button className="upload-button" type="button" onClick={handleButtonClick}>
+            {/* Header */}
+            <div className="flex flex-col items-center justify-center">
+                <div
+                    className="w-[130px] h-[120px] bg-cover"
+                    style={{ backgroundImage: "url('/assets/uploadicon.png')" }}
+                />
+                <p className="mt--20 text-md text-gray-700">Drag and Drop files to upload</p>
+                <button
+                    className="w-[100px] h-[40px] mt-4 border border-gray-400 rounded-md bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all duration-200 ease-in-out  cursor-pointer"
+                    type="button"
+                    onClick={handleButtonClick}
+                >
                     Select Files
                 </button>
             </div>
+
+            {/* Hidden File Input */}
             <input
                 type="file"
                 ref={fileInputRef}
-                style={{ display: "none" }}
+                className="hidden"
                 onChange={handleFileSelect}
                 multiple
                 webkitdirectory
             />
-            <div className="upload-status">
+
+            {/* Upload Status */}
+            <div className="mt-3 text-center">
                 {uploadComplete && (
-                    <div className="upload-complete">
-                        <FontAwesomeIcon icon={faCheckCircle} className="success-icon" />
+                    <div className="flex items-center justify-center text-green-600 font-bold mb-2">
+                        <FontAwesomeIcon icon={faCheckCircle} className="mr-2" />
                         <span>Upload Complete</span>
                     </div>
                 )}
                 {errorMessages.map((message, index) => (
-                    <div key={index} className="error-message">
-                        <FontAwesomeIcon icon={faTimesCircle} className="error-icon" />
+                    <div key={index} className="flex items-center justify-center text-red-600 mb-2">
+                        <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
                         {message}
                     </div>
                 ))}
             </div>
-            <div className="uploaded-files">
+
+            {/* Uploaded Files */}
+            <div className="mt-5 flex flex-wrap gap-3 overflow-y-auto max-h-[calc(60vh-120px)]">
                 {displayItems.map((item, index) => (
-                    <div key={index} className="uploaded-file">
+                    <div
+                        key={index}
+                        className="p-2 border border-gray-300 rounded-md max-w-[160px] whitespace-nowrap overflow-hidden text-ellipsis text-sm text-gray-800"
+                    >
                         {item.endsWith("/") ? (
-                            <span className="uploaded-filename">
-                                <img src="/assets/folder.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}
+                            <span className="flex items-center gap-2">
+                                <img
+                                    src="/assets/folder.png"
+                                    alt="Folder"
+                                    className="w-4 h-4"
+                                />
+                                {item}
                             </span>
                         ) : (
-                            <span className="uploaded-filename">
-                                <img src="/assets/file.png" alt="" style={{ width: "17px", height: "17px" }} /> {item}
+                            <span className="flex items-center gap-2">
+                                <img
+                                    src="/assets/file.png"
+                                    alt="File"
+                                    className="w-4 h-4"
+                                />
+                                {item}
                             </span>
                         )}
                     </div>

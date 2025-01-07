@@ -12,6 +12,7 @@ import Features from './features';
 import Pricing from './pricing';
 import Integrations from './integrations';
 import Blog from './blog';
+import BlogPost from './blogpost';
 
 
 const firebaseConfig = {
@@ -38,6 +39,7 @@ root.render(
       <Route path="/pricing" element={< Pricing />} />
       <Route path="/integrations" element={< Integrations />} />
       <Route path="/blog" element={< Blog />} />
+      <Route path="/blogpost/:slug" element={<BlogPost />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/dashboard" element= {
