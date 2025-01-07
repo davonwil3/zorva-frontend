@@ -8,6 +8,9 @@ import SignIn from './signin';
 import SignUp from './signup';
 import ProtectedRoute  from './protected-route';
 import LandingPage from './landingpage';
+import Features from './features';
+import Pricing from './pricing';
+import Integrations from './integrations';
 
 
 const firebaseConfig = {
@@ -30,11 +33,14 @@ root.render(
   <Router>
     <Routes>
       <Route path="/" element={< LandingPage />} />
+      <Route path="/features" element={< Features />} />
+      <Route path="/pricing" element={< Pricing />} />
+      <Route path="/integrations" element={< Integrations />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route path="/dashboard" element= {
         <ProtectedRoute element={<Dashboard />} />
       } />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
     </Routes>
   </Router>
 );
