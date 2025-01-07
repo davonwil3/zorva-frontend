@@ -56,6 +56,14 @@ export default function Nav() {
                             Pricing
                         </Link>
                     </div>
+                    <div className="first:pt-4 lg:first:pt-0">
+                        <Link
+                            to="/blog"
+                            className="block py-3 text-md lg:px-4 lg:py-2 lg:text-base"
+                        >
+                            Blog
+                        </Link>
+                    </div>
 
                     <div className="mt-6 flex flex-col items-center gap-4 lg:ml-4 lg:mt-0 lg:flex-row">
                         <button
