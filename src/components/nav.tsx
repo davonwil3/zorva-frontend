@@ -13,7 +13,7 @@ export default function Nav() {
                             alt="Logo image"
                             className="w-8 h-8 lg:w-[50px] lg:h-[50px]" // Adjusted logo size
                         />
-                        <p className="text-xl font-semibold lg:text-xl">Zorva</p> {/* Adjusted font size */}
+                        <p className="text-2xl font-semibold lg:text-2xl">Zorva</p> {/* Adjusted font size */}
                     </Link>
                     <button
                         className="-mr-2 flex size-12 flex-col items-center justify-center lg:hidden"

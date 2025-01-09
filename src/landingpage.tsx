@@ -129,42 +129,10 @@ function LandingPage() {
                                 </p>
                             </div>
                         </div>
-
-                        {/* Buttons */}
-                        <div className="mt-10 flex items-center gap-4 md:mt-14 lg:mt-16">
-                            <button
-                                className="bg-[rgb(59,133,237)] inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg hover:bg-[rgb(45,101,189)] hover:scale-105"
-                                title="Button"
-                            >
-                                Try it out
-                            </button>
-                            <button
-                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border-0 text-text-primary gap-2 p-0"
-                                title="Button"
-                            >
-
-                                <svg
-                                    stroke="currentColor"
-                                    fill="none"
-                                    strokeWidth="0"
-                                    viewBox="0 0 15 15"
-                                    height="1em"
-                                    width="1em"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                        d="M6.1584 3.13508C6.35985 2.94621 6.67627 2.95642 6.86514 3.15788L10.6151 7.15788C10.7954 7.3502 10.7954 7.64949 10.6151 7.84182L6.86514 11.8418C6.67627 12.0433 6.35985 12.0535 6.1584 11.8646C5.95694 11.6757 5.94673 11.3593 6.1356 11.1579L9.565 7.49985L6.1356 3.84182C5.94673 3.64036 5.95694 3.32394 6.1584 3.13508Z"
-                                        fill="currentColor"
-                                    ></path>
-                                </svg>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-0">
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "40px" }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div>
@@ -190,31 +158,6 @@ function LandingPage() {
                                 to effortlessly retrieve your documents and access live data.
                                 Stay updated and let your data flow automatically into one powerful analytics platform.
                             </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
-                <div className="container">
-                    <div
-                        className="grid grid-cols-1 gap-y-12 md:grid-flow-row md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20"
-                    >
-                        <div>
-                            <h2 className="rb-5 mb-5 text-3xl font-bold leading-[1.2] md:mb-6 md:text-4xl lg:text-5xl">
-                                Clean and Prepare Your Data Automatically
-                            </h2>
-                            <p className="mb-6 md:mb-8 md:text-lg lg:text-lg">
-                                Upload raw data, and let our platform handle the hard work—removing duplicates,
-                                fixing formatting errors, and filling missing values. Start every analysis with clean, reliable data.
-                            </p>
-
-                        </div>
-                        <div>
-                            <img
-                                src="https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg"
-                                className="w-full object-cover"
-                                alt="Relume placeholder image"
-                            />
                         </div>
                     </div>
                 </div>
@@ -274,6 +217,37 @@ function LandingPage() {
                     </div>
                 </div>
             </section>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+                <div className="container">
+                    <div
+                        className="grid grid-cols-1 gap-y-12 md:grid-flow-row md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20"
+                    >
+                        <div>
+                            <h2 className="rb-5 mb-5 text-3xl font-bold leading-[1.2] md:mb-6 md:text-4xl lg:text-5xl">
+                                Clean and Prepare Your Data Automatically
+                            </h2>
+                            <p className="mb-6 md:mb-8 md:text-lg lg:text-lg">
+                                Upload raw data, and let our platform handle the hard work—removing duplicates,
+                                fixing formatting errors, and filling missing values. Start every analysis with clean, reliable data.
+                            </p>
+
+                        </div>
+                        <div>
+                            <video
+                                className="w-full object-cover"
+                                src={'assets/graphanimation.mp4'}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="relume" className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container">
                     <div
@@ -316,55 +290,65 @@ function LandingPage() {
             <section className="flex flex-col justify-center items-center px-[5%] py-12 md:py-16 lg:py-20" style={{ paddingTop: "90px" }}>
                 <div className="container">
                     <h1
-                        className="mx-auto mb-6 w-full max-w-lg text-center text-base font-bold leading-[1.2] md:mb-8 md:text-lg lg:text-lg md:leading-[1.2]"
+                        className="mx-auto mb-6 w-full max-w-lg text-center text-base font-bold leading-[1.2] md:mb-8 md:text-2xl lg:text-2xl md:leading-[1.2]"
                     >
                         Our Integrations
                     </h1>
                     <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 pb-2 pt-4 md:pt-2">
                         <img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/quickbooks.png"
                             alt="Webflow logo 1"
                             className="max-h-12 md:max-h-14"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/relume-logo.svg"
+                            src="/assets/salesforce.png"
                             alt="Relume logo 1"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[95px] w-[160px] "
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/airtablelogo.png"
                             alt="Webflow logo 2"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[75px] w-[150px]"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/relume-logo.svg"
+                            src="/assets/Shopify.png"
                             alt="Relume logo 2"
                             className="max-h-12 md:max-h-14"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/Hubspot.png"
                             alt="Webflow logo 3"
                             className="max-h-12 md:max-h-14"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/relume-logo.svg"
+                            src="/assets/googledrive.png"
                             alt="Relume logo 3"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[75px] w-[150px]"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/mailchimp.png"
                             alt="Webflow logo 4"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[75px] w-[150px] mb-1"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/relume-logo.svg"
+                            src="/assets/goglesheets.png"
                             alt="Relume logo 4"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[85px] w-[190px]"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/Dropbox.png"
                             alt="Webflow logo 5"
                             className="max-h-12 md:max-h-14"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/relume-logo.svg"
+                            src="/assets/googleanalytics.png"
                             alt="Relume logo 5"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[85px] w-[190px]"
                         /><img
-                            src="https://d22po4pjz3o32e.cloudfront.net/webflow-logo.svg"
+                            src="/assets/onedrive.png"
                             alt="Webflow logo 6"
-                            className="max-h-12 md:max-h-14"
+                            className="h-[85px] w-[190px]"
+                        />
+                        <img
+                            src="/assets/postgres.png"
+                            alt="Webflow logo 6"
+                            className="h-[85px] w-[190px]"
+                        />
+                        <img
+                            src="/assets/mysql.png"
+                            alt="Webflow logo 6"
+                            className="h-[85px] w-[190px] mb-8"
                         />
                     </div>
                 </div>
@@ -383,17 +367,17 @@ function LandingPage() {
                             </p>
                             <div className="mt-6 flex flex-wrap gap-4 md:mt-8">
                                 <button
-                                    className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3"
-                                    title="Button"
+                                    className="focus-visible:ring-[rgb(59,133,237)] inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(59,133,237)] bg-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg"
+                                    title="Get Started for Free"
                                 >
-                                    Get Started Now
+                                    Get Started for Free
                                 </button>
 
                             </div>
                         </div>
                         <div>
                             <img
-                                src="https://d22po4pjz3o32e.cloudfront.net/placeholder-image-landscape.svg"
+                                src="/assets/businessmen.png"
                                 className="w-full object-cover"
                                 alt="Relume placeholder image"
                             />
