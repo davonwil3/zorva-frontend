@@ -11,7 +11,7 @@ export default function BlogPost() {
     return (
         <div className="bg-white">
             <Nav />
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "110px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "110px" }}>
                 <div className="container">
                     <div className="mx-auto mb-12 flex w-full max-w-3xl flex-col items-start justify-start md:mb-16 lg:mb-20">
                         {/* Breadcrumb navigation */}
@@ -148,7 +148,7 @@ export default function BlogPost() {
                     </div>
                 </div>
             </section>
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.5fr_1.5fr] lg:gap-x-20">
                         <div className="order-last lg:order-none">
@@ -311,16 +311,16 @@ export default function BlogPost() {
                     </div>
                 </div>
             </section>
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "10px" }}>
                 <div className="container">
                     <div className="flex flex-col items-center border border-border-primary p-8 md:p-12 lg:p-16">
                         <div className="max-w-lg text-center">
                             <h2 className="rb-5 mb-5 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
-                                Medium length heading goes here
+                            Unlock the Power of Your Data with Zorva
                             </h2>
                             <p className="md:text-md">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-                                elementum tristique.
+                                Take control of your data and turn it into actionable insights.
+                                Zorva makes data analysis simple, powerful, and accessible for businesses of all sizes.
                             </p>
                         </div>
                         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 md:mt-8">
@@ -328,13 +328,9 @@ export default function BlogPost() {
                                 className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3"
                                 title="Button"
                             >
-                                Button</button
-                            ><button
-                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-6 py-3"
-                                title="Button"
-                            >
-                                Button
+                                Learn More
                             </button>
+
                         </div>
                     </div>
                 </div>

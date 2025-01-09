@@ -4,51 +4,34 @@ import Footer from "./components/footer";
 import * as Tabs from '@radix-ui/react-tabs';
 import FeatureItem from "./components/featureitem";
 import * as Accordion from '@radix-ui/react-accordion';
+import FAQItem from "./components/faqitem";
 
 
 export default function Pricing() {
     return (
         <div className="bg-white">
             <Nav />
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
                 <div className="container">
                     <div className="w-full max-w-lg">
-                        <p className="mb-3 font-semibold md:mb-4">Tagline</p>
-                        <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">Short heading here</h1>
+                        <p className="mb-3 font-semibold md:mb-4">Affordable Plans</p>
+                        <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-4xl lg:text-5xl">Simple Pricing, Powerful Features</h1>
                         <p className="md:text-md">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-                            elementum tristique.
+                            Flexible plans designed to grow with you. Access powerful AI-driven insights and features tailored to your needs—no hassle, just results.
                         </p>
-                        <div className="mt-6 flex flex-wrap gap-4 md:mt-8">
-                            <button
-                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3"
-                                title="Button"
-                            >
-                                Button</button
-                            ><button
-                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-6 py-3"
-                                title="Button"
-                            >
-                                Button
-                            </button>
-                        </div>
                     </div>
                 </div>
             </section>
             <section
-               
+
                 className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28"
-                style={{ paddingTop: "0px" }}
+                style={{ paddingTop: "80px" }}
             >
                 <div className="container">
                     <div className="mx-auto mb-7 max-w-lg text-center md:mb-9 lg:mb-11">
-                        <p className="mb-3 font-semibold md:mb-4">Tagline</p>
                         <h1 className="mb-4 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
                             Pricing plan
                         </h1>
-                        <p className="md:text-md">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        </p>
                     </div>
 
                     {/* Radix Tabs Root, defaulting to "monthly" */}
@@ -92,9 +75,11 @@ export default function Pricing() {
                                         </h3>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
+                                        <FeatureItem text="25 uploads/month" />
+                                        <FeatureItem text="20 AI queries/month" />
+                                        <FeatureItem text="3 graphs per file" />
+                                        <FeatureItem text="Basic graph types: Bar, line, and pie charts" />
+                                        <FeatureItem text="3 reports/month" />
                                     </div>
                                 </div>
                                 <div>
@@ -122,10 +107,14 @@ export default function Pricing() {
                                         </h3>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
+                                        <FeatureItem text="100 uploads/month" />
+                                        <FeatureItem text="Search for files by content" />
+                                        <FeatureItem text="Unlimited AI queries" />
+                                        <FeatureItem text="Unlimited graphs per file" />
+                                        <FeatureItem text="All graph types, including (heatmaps, scatter plots, multi-axis charts)." />
+                                        <FeatureItem text="Customize graphs: Apply filters, group data, and adjust graph appearance" />
+                                        <FeatureItem text="Real-time alerts " />
+                                        <FeatureItem text="Connect to popular tools like Google Sheets, QuickBooks, and Shopify" />
                                     </div>
                                 </div>
                                 <div>
@@ -153,10 +142,13 @@ export default function Pricing() {
                                         </h3>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
-                                        <FeatureItem text="Feature text goes here" />
+                                        <FeatureItem text="Unlimited uploads" />
+                                        <FeatureItem text="Everything in pro plan" />
+                                        <FeatureItem text="Customize and brand your reports" />
+                                        <FeatureItem text="Add up to 10 team members " />
+                                        <FeatureItem text="Cross-file analysis " />
+                                        <FeatureItem text="Real-time alerts with custom triggers  " />
+                                        <FeatureItem text="Advanced integrations (e.g., Salesforce, Tableau, Power BI) " />
                                     </div>
                                 </div>
                                 <div>
@@ -191,9 +183,11 @@ export default function Pricing() {
                                         </h3>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Yearly Feature 1" />
-                                        <FeatureItem text="Yearly Feature 2" />
-                                        <FeatureItem text="Yearly Feature 3" />
+                                        <FeatureItem text="25 uploads/month" />
+                                        <FeatureItem text="20 AI queries/month" />
+                                        <FeatureItem text="3 graphs per file" />
+                                        <FeatureItem text="Basic graph types: Bar, line, and pie charts" />
+                                        <FeatureItem text="3 reports/month" />
                                     </div>
                                 </div>
                                 <div>
@@ -214,21 +208,25 @@ export default function Pricing() {
                                             Pro plan (Yearly)
                                         </h2>
                                         <h3 className="my-2 text-4xl font-bold md:text-7xl lg:text-8xl">
-                                            $296
+                                            $21
                                             <span className="text-2xl font-bold md:text-3xl md:leading-[1.3] lg:text-4xl">
-                                                /yr
+                                                /mo
                                             </span>
                                         </h3>
                                         {/* Show the 15% discount */}
                                         <p className="text-sm font-semibold text-red-500">
-                                            Save 15%
+                                            Save 25%
                                         </p>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Yearly Feature 1" />
-                                        <FeatureItem text="Yearly Feature 2" />
-                                        <FeatureItem text="Yearly Feature 3" />
-                                        <FeatureItem text="Yearly Feature 4" />
+                                        <FeatureItem text="100 uploads/month" />
+                                        <FeatureItem text="Search for files by content" />
+                                        <FeatureItem text="Unlimited AI queries" />
+                                        <FeatureItem text="Unlimited graphs per file" />
+                                        <FeatureItem text="All graph types, including (heatmaps, scatter plots, multi-axis charts)." />
+                                        <FeatureItem text="Customize graphs: Apply filters, group data, and adjust graph appearance" />
+                                        <FeatureItem text="Real-time alerts " />
+                                        <FeatureItem text="Connect to popular tools like Google Sheets, QuickBooks, and Shopify" />
                                     </div>
                                 </div>
                                 <div>
@@ -249,21 +247,24 @@ export default function Pricing() {
                                             Business plan (Yearly)
                                         </h2>
                                         <h3 className="my-2 text-4xl font-bold md:text-7xl lg:text-8xl">
-                                            $602
+                                            $44
                                             <span className="text-2xl font-bold md:text-3xl md:leading-[1.3] lg:text-4xl">
-                                                /yr
+                                                /mo
                                             </span>
                                         </h3>
                                         {/* Show the 15% discount */}
                                         <p className="text-sm font-semibold text-red-500">
-                                            Save 15%
+                                            Save 25%
                                         </p>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="Yearly Feature 1" />
-                                        <FeatureItem text="Yearly Feature 2" />
-                                        <FeatureItem text="Yearly Feature 3" />
-                                        <FeatureItem text="Yearly Feature 4" />
+                                        <FeatureItem text="Unlimited uploads" />
+                                        <FeatureItem text="Everything in pro plan" />
+                                        <FeatureItem text="Customize and brand your reports" />
+                                        <FeatureItem text="Add up to 10 team members " />
+                                        <FeatureItem text="Cross-file analysis " />
+                                        <FeatureItem text="Real-time alerts with custom triggers  " />
+                                        <FeatureItem text="Advanced integrations (e.g., Salesforce, Tableau, Power BI) " />
                                     </div>
                                 </div>
                                 <div>
@@ -279,7 +280,7 @@ export default function Pricing() {
                     </Tabs.Root>
                 </div>
             </section>
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div>
@@ -291,12 +292,13 @@ export default function Pricing() {
                                 />
                             </div>
                             <h3 className="mb-5 text-3xl font-bold leading-[1.2] md:mb-6 md:text-4xl lg:text-5xl">
-                                Long heading is what you see here in this feature section
+                                See Beyond the Numbers
                             </h3>
                             <p className="md:text-md">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-                                elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut
-                                commodo diam libero vitae erat.
+                                Your data isn’t just a collection of numbers—it’s a story waiting to be told. With our tools, you’ll uncover hidden trends,
+                                identify patterns, and transform raw information into actionable insights.
+                                Gain a deeper understanding of your business, anticipate opportunities, and stay ahead of challenges.
+                                Let your data guide you to smarter decisions and greater success. The answers you’ve been searching for are already in your hands—now it’s time to unlock them.
                             </p>
                         </div>
                         <div>
@@ -317,167 +319,58 @@ export default function Pricing() {
                     <div className="rb-12 mb-12 w-full max-w-lg md:mb-18 lg:mb-20">
                         <h2 className="rb-5 mb-5 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">FAQs</h2>
                         <p className="md:text-md">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-                            elementum tristique.
+                            Here are the answers to the questions we get asked the most.
                         </p>
                     </div>
 
                     {/* Wrap all FAQ items in Accordion.Root */}
                     <Accordion.Root
-                        type="single"       // or "multiple" if you want multiple items open at once
-                        collapsible         // allows closing an open item
+                        type="single"     // Only one item open at a time
+                        collapsible       // Allows an open item to be closed
                         data-orientation="vertical"
                     >
-                        {/* FAQ Item #1 */}
-                        <Accordion.Item
+                        <FAQItem
                             value="item-1"
-                            data-orientation="vertical"
-                            className="border-b border-border-primary first:border-t"
-                        >
-                            <Accordion.Header className="flex w-full">
-                                <Accordion.Trigger
-                                    id="radix-:R6:"
-                                    className="flex flex-1 items-center justify-between py-4 font-bold transition-all [&[data-state=open]>svg]:rotate-180 md:py-5 md:text-md"
-                                >
-                                    Question #1 goes here
-                                    <svg
-                                        stroke="currentColor"
-                                        fill="none"
-                                        strokeWidth="0"
-                                        viewBox="0 0 15 15"
-                                        className="size-7 shrink-0 text-text-primary transition-transform duration-300 md:size-8"
-                                        height="1em"
-                                        width="1em"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            clipRule="evenodd"
-                                            d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
-                                </Accordion.Trigger>
-                            </Accordion.Header>
-                            <Accordion.Content
-                                className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-                                // Below styles are Radix recommended for smooth animations
-                                style={{
-                                    '--radix-accordion-content-height':
-                                        'var(--radix-collapsible-content-height)',
-                                    '--radix-accordion-content-width':
-                                        'var(--radix-collapsible-content-width)',
-                                } as React.CSSProperties}
-                            >
-                                {/* Answer #1: Place your answer text here */}
-                                <p className="py-2">
-                                    Answer #1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a rhoncus est.
-                                </p>
-                            </Accordion.Content>
-                        </Accordion.Item>
-
-                        {/* FAQ Item #2 */}
-                        <Accordion.Item
+                            question="1.) How does your app handle my data?"
+                            answer="We prioritize your privacy and security. All your data is encrypted and stored securely to ensure it remains confidential."
+                        />
+                        <FAQItem
                             value="item-2"
-                            data-orientation="vertical"
-                            className="border-b border-border-primary first:border-t"
-                        >
-                            <Accordion.Header className="flex w-full">
-                                <Accordion.Trigger
-                                    id="radix-:Ra:"
-                                    className="flex flex-1 items-center justify-between py-4 font-bold transition-all [&[data-state=open]>svg]:rotate-180 md:py-5 md:text-md"
-                                >
-                                    Question #2 goes here
-                                    <svg
-                                        stroke="currentColor"
-                                        fill="none"
-                                        strokeWidth="0"
-                                        viewBox="0 0 15 15"
-                                        className="size-7 shrink-0 text-text-primary transition-transform duration-300 md:size-8"
-                                        height="1em"
-                                        width="1em"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            clipRule="evenodd"
-                                            d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
-                                </Accordion.Trigger>
-                            </Accordion.Header>
-                            <Accordion.Content
-                                className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-                                style={{
-                                    '--radix-accordion-content-height':
-                                        'var(--radix-collapsible-content-height)',
-                                    '--radix-accordion-content-width':
-                                        'var(--radix-collapsible-content-width)',
-                                } as React.CSSProperties}
-                            >
-                                {/* Answer #2 */}
-                                <p className="py-2">
-                                    Answer #2. Etiam dictum, sapien et faucibus euismod, sem diam scelerisque risus.
-                                </p>
-                            </Accordion.Content>
-                        </Accordion.Item>
-
-                        {/* Repeat for items #3, #4, #5, etc. */}
-                        <Accordion.Item
+                            question="2.) Can I upgrade or downgrade my plan at any time?"
+                            answer="Yes, you can switch plans anytime to better fit your needs. Changes take effect immediately."
+                        />
+                        <FAQItem
                             value="item-3"
-                            data-orientation="vertical"
-                            className="border-b border-border-primary first:border-t"
-                        >
-                            <Accordion.Header className="flex w-full">
-                                <Accordion.Trigger
-                                    id="radix-:Re:"
-                                    className="flex flex-1 items-center justify-between py-4 font-bold transition-all [&[data-state=open]>svg]:rotate-180 md:py-5 md:text-md"
-                                >
-                                    Question #3 goes here
-                                    <svg
-                                        stroke="currentColor"
-                                        fill="none"
-                                        strokeWidth="0"
-                                        viewBox="0 0 15 15"
-                                        className="size-7 shrink-0 text-text-primary transition-transform duration-300 md:size-8"
-                                        height="1em"
-                                        width="1em"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            clipRule="evenodd"
-                                            d="M3.13523 6.15803C3.3241 5.95657 3.64052 5.94637 3.84197 6.13523L7.5 9.56464L11.158 6.13523C11.3595 5.94637 11.6759 5.95657 11.8648 6.15803C12.0536 6.35949 12.0434 6.67591 11.842 6.86477L7.84197 10.6148C7.64964 10.7951 7.35036 10.7951 7.15803 10.6148L3.15803 6.86477C2.95657 6.67591 2.94637 6.35949 3.13523 6.15803Z"
-                                            fill="currentColor"
-                                        />
-                                    </svg>
-                                </Accordion.Trigger>
-                            </Accordion.Header>
-                            <Accordion.Content
-                                className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-                                style={{
-                                    '--radix-accordion-content-height':
-                                        'var(--radix-collapsible-content-height)',
-                                    '--radix-accordion-content-width':
-                                        'var(--radix-collapsible-content-width)',
-                                } as React.CSSProperties}
-                            >
-                                {/* Answer #3 */}
-                                <p className="py-2">
-                                    Answer #3. Curabitur suscipit velit a nisl luctus, sed sollicitudin dui gravida.
-                                </p>
-                            </Accordion.Content>
-                        </Accordion.Item>
-
-                        {/* ...and so on for items #4, #5, etc. */}
+                            question="3.) What happens if I hit my upload limit?"
+                            answer="If you reach your upload limit, you'll be notified and given the option to upgrade to a higher plan for more uploads."
+                        />
+                        <FAQItem
+                            value="item-4"
+                            question="4.) Do you offer refunds?"
+                            answer="Sorry, we do not offer refunds. If you have any concerns about your subscription, feel free to reach out to our support team."
+                        />
+                        <FAQItem
+                            value="item-5"
+                            question="5.) Can I share my account with my team?"
+                            answer="Team sharing is available exclusively in the Business Plan, which allows you to add team members for seamless collaboration."
+                        />
+                        <FAQItem
+                            value="item-6"
+                            question="6.) What kind of support do you offer?"
+                            answer="We offer email support and aim to respond to your queries as soon as possible to ensure your experience is smooth and hassle-free."
+                        />
+                        <FAQItem
+                            value="item-7"
+                            question="7.) Is there a free trial?"
+                            answer="Yes! We offer a 7-day free trial so you can explore all premium features before committing to a plan."
+                        />
                     </Accordion.Root>
 
                     <div className="mt-12 md:mt-18 lg:mt-20">
                         <h4 className="mb-3 text-2xl font-bold md:mb-4 md:text-3xl md:leading-[1.3] lg:text-4xl">
                             Still have questions?
                         </h4>
-                        <p className="md:text-md">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                        <p className="md:text-md">Leave us an email and well get back to you as soon as possible</p>
                         <div className="mt-6 md:mt-8">
                             <button
                                 className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-6 py-3"

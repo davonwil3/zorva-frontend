@@ -10,22 +10,28 @@ function LandingPage() {
     return (
         <div className="bg-white">
             <Nav />
-            <section className="px-[5%] py-16 md:py-24 lg:py-28 pt-45 lg:pt-45" style={{ paddingTop: "145px" }}>
-                <div className="container mx-auto  ">
+            <section
+                className="px-[5%] py-16 md:py-24 lg:py-28 pt-45 lg:pt-45"
+                style={{
+                    paddingTop: "165px",
+                    backgroundColor: "rgb(57, 65, 150)",
+                }}
+            >
+                <div className="container mx-auto">
                     <div className="flex flex-col items-center">
                         {/* Text Section */}
-                        <div className="mb-12 text-center md:mb-18 lg:mb-20">
+                        <div className="mb-12 text-center md:mb-18 lg:mb-20 text-white">
                             <div className="w-full max-w-3xl mx-auto">
-                                <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">
+                                <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-7xl">
                                     Simplify Your Data, Grow Your Business
                                 </h1>
                                 <p className="text-base md:text-xl">
-                                AI-powered platform that turns your data into actionable insights — effortlessly.
+                                    AI-powered platform that turns your data into actionable insights — effortlessly.
                                 </p>
                                 <div className="mt-6 flex items-center justify-center gap-x-4 md:mt-8">
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3"
-                                        title="Button"
+                                        className="focus-visible:ring-[rgb(59,133,237)] inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(59,133,237)] bg-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg"
+                                        title="Get Started for Free"
                                     >
                                         Get Started for Free
                                     </button>
@@ -46,17 +52,23 @@ function LandingPage() {
             </section>
             <section
                 className="flex flex-col justify-center items-center px-[5%] bg-white pt-0px"
-                style={{ paddingTop: "0px" }}
+                style={{ paddingTop: "150px" }}
             >
                 <div className="container">
                     <div className="flex flex-col items-center">
                         {/* Text Section */}
-                        <div className="rb-12 mb-12 text-center md:mb-18 lg:mb-20">
+                        <div className="rb-12 mb-12 text-center md:mb-18 lg:mb-38">
                             <div className="w-full max-w-xl">
                                 <p className="mb-3 font-semibold md:mb-4">Powerful Tools for Smarter Decisions</p>
-                                <h2 className="rb-5 mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">
+                                <h2 className="rb-5 mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl"
+                                    style={{
+                                        background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                        WebkitBackgroundClip: "text",
+                                        color: "transparent"
+                                    }}>
                                     Unleash the Power of Your Data
                                 </h2>
+
                                 <p className=" text-lg md:text-lg lg:text-lg">
                                     Turn messy spreadsheets into clear insights, stunning visuals, and shareable reports—effortlessly.
                                     Perfect for small businesses, startups, and teams seeking actionable insights
@@ -65,12 +77,12 @@ function LandingPage() {
                         </div>
 
                         {/* Grid Section */}
-                        <div className="grid grid-cols-1 items-start justify-center gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-16 lg:gap-x-12">
+                        <div className="grid grid-cols-1 items-start justify-center gap-y-12 md:grid-cols-3 md:gap-x-8 md:gap-y-16 lg:gap-x-12" style={{ paddingTop: "45px" }}>
                             {/* Grid Item 1 */}
                             <div className="flex w-full flex-col items-center text-center">
                                 <div className="rb-5 mb-5 md:mb-6">
                                     <img
-                                        src="https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg"
+                                        src="/assets/light-bulb.png"
                                         className="size-12"
                                         alt="Relume logo 1"
                                     />
@@ -87,7 +99,7 @@ function LandingPage() {
                             <div className="flex w-full flex-col items-center text-center">
                                 <div className="rb-5 mb-5 md:mb-6">
                                     <img
-                                        src="https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg"
+                                        src="/assets/pie-chart.png"
                                         className="size-12"
                                         alt="Relume logo 2"
                                     />
@@ -104,7 +116,7 @@ function LandingPage() {
                             <div className="flex w-full flex-col items-center text-center">
                                 <div className="rb-5 mb-5 md:mb-6">
                                     <img
-                                        src="https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg"
+                                        src="/assets/document.png"
                                         className="size-12"
                                         alt="Relume logo 3"
                                     />
@@ -121,7 +133,7 @@ function LandingPage() {
                         {/* Buttons */}
                         <div className="mt-10 flex items-center gap-4 md:mt-14 lg:mt-16">
                             <button
-                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary text-text-primary bg-background-primary px-6 py-3"
+                                className="bg-[rgb(59,133,237)] inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg hover:bg-[rgb(45,101,189)] hover:scale-105"
                                 title="Button"
                             >
                                 Try it out
@@ -152,12 +164,12 @@ function LandingPage() {
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28">
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-0">
                 <div className="container">
                     <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 md:items-center md:gap-x-12 lg:gap-x-20">
                         <div>
                             <img
-                                src="https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg"
+                                src="/assets/illustration-integration.png"
                                 className="w-full object-cover"
                                 alt="Relume placeholder image"
                             />
@@ -165,7 +177,7 @@ function LandingPage() {
                         <div>
                             <div className="rb-5 mb-5 md:mb-6">
                                 <img
-                                    src="https://d22po4pjz3o32e.cloudfront.net/relume-icon.svg"
+                                    src="/assets/integration.png"
                                     className="size-12"
                                     alt="Relume logo"
                                 />
@@ -376,7 +388,7 @@ function LandingPage() {
                                 >
                                     Get Started Now
                                 </button>
-                               
+
                             </div>
                         </div>
                         <div>
@@ -395,7 +407,7 @@ function LandingPage() {
                         <div className="mx-auto w-full max-w-lg text-center">
                             <p className="mb-3 font-semibold md:mb-4">Blog</p>
                             <h2 className="rb-5 mb-5 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
-                            Stay Ahead with Expert Tips
+                                Stay Ahead with Expert Tips
                             </h2>
                             <p className="md:text-md">Explore our blog for tips, trends, and expert advice to help you make the most of your data.</p>
                         </div>

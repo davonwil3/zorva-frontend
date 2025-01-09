@@ -14,11 +14,11 @@ export default function Blog() {
                     <div className="mb-12 md:mb-18 lg:mb-20">
                         <div className="mx-auto w-full max-w-lg text-center">
                             <p className="mb-3 font-semibold md:mb-4">Blog</p>
-                            <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-5xl lg:text-6xl">
-                                Short heading goes here
+                            <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
+                            Expert tips on Data Analytics
                             </h1>
                             <p className="md:text-md">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            Explore the latest trends and insights in the industry.
                             </p>
                         </div>
                     </div>
@@ -38,28 +38,28 @@ export default function Blog() {
                                 className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
                                 title="Category one"
                             >
-                                Category one
+                                Best Practices
                             </a>
                             <a
                                 href="#"
                                 className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
                                 title="Category two"
                             >
-                                Category two
+                               Tools and Technology
                             </a>
                             <a
                                 href="#"
                                 className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
                                 title="Category three"
                             >
-                                Category three
+                                Industry Insights
                             </a>
                             <a
                                 href="#"
                                 className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
                                 title="Category four"
                             >
-                                Category four
+                               Getting Started with Data Analytics
                             </a>
                         </div>
 
@@ -130,10 +130,10 @@ export default function Blog() {
                         <div className="w-full max-w-lg">
                             <p className="mb-3 font-semibold md:mb-4">Blog</p>
                             <h2 className="rb-5 mb-5 text-3xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
-                                Short heading goes here
+                                Explore Our Latest Topics
                             </h2>
                             <p className="md:text-md">
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                                Here are some of our latest posts
                             </p>
                         </div>
                     </div>
@@ -194,11 +194,11 @@ export default function Blog() {
             <section  className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container max-w-lg text-center">
                     <h2 className="rb-5 mb-5 text-3xl font-bold text-text-alternative md:mb-6 md:text-4xl lg:text-5xl">
-                        Medium length heading goes here
+                    Stay Ahead with the Latest Insights
                     </h2>
                     <p className="text-text-alternative md:text-md">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros
-                        elementum tristique.
+                    Join our newsletter to receive expert tips, trends, and updates directly to your inbox. 
+                    Be the first to know about the strategies that drive success.
                     </p>
                     <div className="mx-auto mt-6 w-full max-w-sm md:mt-8">
                         <form
