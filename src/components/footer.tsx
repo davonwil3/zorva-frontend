@@ -9,7 +9,7 @@ export default function Footer() {
                     className="grid grid-cols-1 items-start justify-between gap-x-[8vw] gap-y-12 pb-12 sm:gap-y-10 md:gap-y-14 md:pb-18 lg:grid-cols-[1fr_0.5fr] lg:pb-20"
                 >
                     <div className="flex flex-col items-start">
-                        <Link to="/" className="flex items-center space-x-2 lg:space-x-1">
+                        <Link to="/" className="flex items-center space-x-2 lg:space-x-1 cursor-pointer">
                             <img
                                 src="/assets/logosymbol.png"
                                 alt="Logo image"
@@ -21,10 +21,10 @@ export default function Footer() {
                             className="grid grid-flow-row grid-cols-1 items-start justify-center justify-items-start  gap-y-4 md:grid-flow-col md:grid-cols-[max-content] md:justify-start md:justify-items-start md:gap-x-6" 
                             style={{ marginTop: "35px", marginLeft: "10px" }}
                         >
-                            <li className="font-semibold"><Link to={'/pricing'}>Pricing</Link></li>
-                            <li className="font-semibold"><a href="#">Blog</a></li>
-                            <li className="font-semibold"><a href="#">Sign in</a></li>
-                            <li className="font-semibold"><a href="#">Sign up</a></li>
+                            <li className="font-semibold cursor-pointer"><Link className='cursor-pointer' to={'/pricing'}>Pricing</Link></li>
+                            <li className="font-semibold cursor-pointer"><Link className='cursor-pointer' to={'/blog'}>Blog</Link></li>
+                            <li className="font-semibold cursor-pointer"><Link className='cursor-pointer' to={'/signin'}>Sign in</Link></li>
+                            <li className="font-semibold cursor-pointer"><Link className='cursor-pointer' to={'/signup'}>Sign up</Link></li>
                         </ul>
                     </div>
                     <div className="max-w-md lg:min-w-[25rem]">

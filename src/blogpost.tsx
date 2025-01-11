@@ -2,6 +2,7 @@ import React from 'react';
 import Nav from './components/nav';
 import Footer from './components/footer';
 import { useParams } from 'react-router-dom';
+import './index.css';
 
 
 

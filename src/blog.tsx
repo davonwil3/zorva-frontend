@@ -3,22 +3,23 @@ import Nav from "./components/nav";
 import Footer from "./components/footer";
 import BlogCard from "./components/blogcard";
 import BlogCard2 from "./components/blogcard2";
+import './index.css';
 
 
 export default function Blog() {
     return (
         <div className="bg-white">
             <Nav />
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28">
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28">
                 <div className="container">
                     <div className="mb-12 md:mb-18 lg:mb-20">
                         <div className="mx-auto w-full max-w-lg text-center">
                             <p className="mb-3 font-semibold md:mb-4">Blog</p>
                             <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-4xl lg:text-5xl">
-                            Expert tips on Data Analytics
+                                Expert tips on Data Analytics
                             </h1>
                             <p className="md:text-md">
-                            Explore the latest trends and insights in the industry.
+                                Explore the latest trends and insights in the industry.
                             </p>
                         </div>
                     </div>
@@ -28,40 +29,43 @@ export default function Blog() {
                         <div className="no-scrollbar mb-12 ml-[-5vw] flex w-screen items-center justify-start overflow-scroll pl-[5vw] md:mb-16 md:ml-0 md:w-full md:justify-center md:overflow-hidden md:pl-0">
                             <a
                                 href="#"
-                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary bg-background-primary border px-4 py-2 border-border-primary"
+                                className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-white bg-blue-600 border px-4 py-2 border-transparent rounded-md hover:bg-blue-700 cursor-pointer"
                                 title="View all"
                             >
-                                View all
+                                View All
                             </a>
                             <a
                                 href="#"
-                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
+                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary underline text-underline-offset-2 gap-2 px-4 py-2 hover:text-blue-500 hover:scale-105 cursor-pointer"
                                 title="Category one"
                             >
                                 Best Practices
                             </a>
                             <a
                                 href="#"
-                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
+                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary underline text-underline-offset-2 gap-2 px-4 py-2 hover:text-blue-500 hover:scale-105 cursor-pointer"
                                 title="Category two"
                             >
-                               Tools and Technology
+                                Tools and Technology
                             </a>
                             <a
                                 href="#"
-                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
+                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary underline text-underline-offset-2 gap-2 px-4 py-2 hover:text-blue-500 hover:scale-105 cursor-pointer"
                                 title="Category three"
                             >
                                 Industry Insights
                             </a>
                             <a
                                 href="#"
-                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary gap-2 border px-4 py-2 border-transparent"
+                                className="focus-visible:ring-border-primary inline-flex items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-text-primary underline text-underline-offset-2 gap-2 px-4 py-2 hover:text-blue-500 hover:scale-105 cursor-pointer"
                                 title="Category four"
                             >
-                               Getting Started with Data Analytics
+                                Getting Started with Data Analytics
                             </a>
                         </div>
+
+
+
 
                         {/* Blog Cards Grid */}
                         <div className="grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 md:gap-y-16 lg:grid-cols-3">
@@ -124,7 +128,7 @@ export default function Blog() {
                     </div>
                 </div>
             </section>
-            <section  className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container">
                     <div className="mb-12 md:mb-18 lg:mb-20">
                         <div className="w-full max-w-lg">
@@ -191,14 +195,14 @@ export default function Blog() {
                     </div>
                 </div>
             </section>
-            <section  className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
+            <section className="flex flex-col justify-center items-center relative px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingTop: "0px" }}>
                 <div className="container max-w-lg text-center">
                     <h2 className="rb-5 mb-5 text-3xl font-bold text-text-alternative md:mb-6 md:text-4xl lg:text-5xl">
-                    Stay Ahead with the Latest Insights
+                        Stay Ahead with the Latest Insights
                     </h2>
                     <p className="text-text-alternative md:text-md">
-                    Join our newsletter to receive expert tips, trends, and updates directly to your inbox. 
-                    Be the first to know about the strategies that drive success.
+                        Join our newsletter to receive expert tips, trends, and updates directly to your inbox.
+                        Be the first to know about the strategies that drive success.
                     </p>
                     <div className="mx-auto mt-6 w-full max-w-sm md:mt-8">
                         <form
@@ -214,8 +218,11 @@ export default function Blog() {
                                 />
                             </div>
                             <button
-                                className="focus-visible:ring-border-primary inline-flex gap-3 whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative items-center justify-center px-6 py-3"
+                                className="focus-visible:ring-border-primary text-white inline-flex gap-3 whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative items-center justify-center px-6 py-3"
                                 title="Sign up"
+                                style={{
+                                    background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                }}
                             >
                                 Sign up
                             </button>

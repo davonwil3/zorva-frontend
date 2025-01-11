@@ -30,7 +30,7 @@ function LandingPage() {
                                 </p>
                                 <div className="mt-6 flex items-center justify-center gap-x-4 md:mt-8">
                                     <button
-                                        className="focus-visible:ring-[rgb(59,133,237)] inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-[rgb(59,133,237)] bg-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg"
+                                        className="focus-visible:ring-[rgb(59,133,237)] cursor-pointer inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-all duration-300 ease-in-out transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2  disabled:opacity-50 border border-[rgb(59,133,237)] bg-[rgb(59,133,237)] text-white px-6 py-3 rounded-lg"
                                         title="Get Started for Free"
                                     >
                                         Get Started for Free

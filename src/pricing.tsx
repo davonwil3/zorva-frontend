@@ -5,18 +5,23 @@ import * as Tabs from '@radix-ui/react-tabs';
 import FeatureItem from "./components/featureitem";
 import * as Accordion from '@radix-ui/react-accordion';
 import FAQItem from "./components/faqitem";
+import './index.css';
+
 
 
 export default function Pricing() {
     return (
         <div className="bg-white">
             <Nav />
-            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28" style={{ paddingBottom: "10px" }}>
+            <section className="flex flex-col justify-center items-center px-[5%] py-16 md:py-24 lg:py-28, text-white" style={{
+                paddingBottom: "65px", paddingTop: "105px",
+                backgroundColor: "rgb(57, 65, 150)",
+            }}>
                 <div className="container">
                     <div className="w-full max-w-lg">
                         <p className="mb-3 font-semibold md:mb-4">Affordable Plans</p>
                         <h1 className="mb-5 text-4xl font-bold md:mb-6 md:text-4xl lg:text-5xl">Simple Pricing, Powerful Features</h1>
-                        <p className="md:text-md">
+                        <p className="md:text-lg">
                             Flexible plans designed to grow with you. Access powerful AI-driven insights and features tailored to your needs—no hassle, just results.
                         </p>
                     </div>
@@ -61,7 +66,7 @@ export default function Pricing() {
                             className="focus-visible:outline-none grid grid-cols-1 gap-8 lg:grid-cols-3 data-[state=active]:animate-tabs"
                         >
                             {/* ----- MONTHLY COLUMN #1: FREE ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between border border-border-primary rounded xl px-6 py-8 md:p-8 shadow-md">
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -84,8 +89,11 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-white rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2  disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                            
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -93,7 +101,7 @@ export default function Pricing() {
                             </div>
 
                             {/* ----- MONTHLY COLUMN #2: PRO @ $29 ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between text-white border border-border-primary rounded-xl px-6 py-8 md:p-8 shadow-md" style={{ background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))" }}>
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -107,7 +115,7 @@ export default function Pricing() {
                                         </h3>
                                     </div>
                                     <div className="mb-8 grid grid-cols-1 gap-4 py-2">
-                                        <FeatureItem text="100 uploads/month" />
+                                        <FeatureItem checkColor='rgb(89,60,230)' text="100 uploads/month" />
                                         <FeatureItem text="Search for files by content" />
                                         <FeatureItem text="Unlimited AI queries" />
                                         <FeatureItem text="Unlimited graphs per file" />
@@ -119,8 +127,11 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-black rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "white",
+                                            cursor: "pointer",
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -128,7 +139,7 @@ export default function Pricing() {
                             </div>
 
                             {/* ----- MONTHLY COLUMN #3: BUSINESS @ $59 ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between text-black border border-border-primary rounded-xl px-6 py-8 md:p-8 shadow-md" >
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -153,8 +164,10 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-white rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -169,7 +182,7 @@ export default function Pricing() {
                         >
 
                             {/* ----- YEARLY COLUMN #1: FREE ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between border border-border-primary rounded-xl px-6 py-8 md:p-8 shadow-md">
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -178,7 +191,7 @@ export default function Pricing() {
                                         <h3 className="my-2 text-4xl font-bold md:text-7xl lg:text-8xl">
                                             $0
                                             <span className="text-2xl font-bold md:text-3xl md:leading-[1.3] lg:text-4xl">
-                                                /yr
+                                                /mo
                                             </span>
                                         </h3>
                                     </div>
@@ -192,8 +205,10 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-white rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -201,7 +216,7 @@ export default function Pricing() {
                             </div>
 
                             {/* ----- YEARLY COLUMN #2: PRO @ ~$296 ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between text-white border border-border-primary rounded-xl px-6 py-8 md:p-8 shadow-md" style={{ background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))" }}>
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -214,7 +229,7 @@ export default function Pricing() {
                                             </span>
                                         </h3>
                                         {/* Show the 15% discount */}
-                                        <p className="text-sm font-semibold text-red-500">
+                                        <p className="text-md font-semibold text-white">
                                             Save 25%
                                         </p>
                                     </div>
@@ -231,8 +246,11 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-black rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "white",
+                                            cursor: "pointer",
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -240,7 +258,7 @@ export default function Pricing() {
                             </div>
 
                             {/* ----- YEARLY COLUMN #3: BUSINESS @ ~$602 ----- */}
-                            <div className="flex h-full flex-col justify-between border border-border-primary px-6 py-8 md:p-8">
+                            <div className="flex h-full flex-col justify-between text-black border border-border-primary rounded-xl px-6 py-8 md:p-8 shadow-md" >
                                 <div>
                                     <div className="rb-6 mb-6 text-center md:mb-8">
                                         <h2 className="text-md font-bold leading-[1.4] md:text-xl">
@@ -253,7 +271,7 @@ export default function Pricing() {
                                             </span>
                                         </h3>
                                         {/* Show the 15% discount */}
-                                        <p className="text-sm font-semibold text-red-500">
+                                        <p className="text-md font-semibold text-red-500">
                                             Save 25%
                                         </p>
                                     </div>
@@ -269,8 +287,10 @@ export default function Pricing() {
                                 </div>
                                 <div>
                                     <button
-                                        className="focus-visible:ring-border-primary inline-flex gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
-                                        title="Get started"
+                                        className="focus-visible:ring-border-primary text-white rounded-lg inline-flex transition-all duration-300 ease-in-out transform hover:scale-105 gap-3 items-center justify-center whitespace-nowrap ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-border-primary bg-background-alternative text-text-alternative px-6 py-3 w-full"
+                                        style={{
+                                            background: "linear-gradient(to bottom right, rgb(89,60,230), rgb(52,150,238))",
+                                        }}
                                     >
                                         Get started
                                     </button>
@@ -302,11 +322,16 @@ export default function Pricing() {
                             </p>
                         </div>
                         <div>
-                            <img
-                                src="https://d22po4pjz3o32e.cloudfront.net/placeholder-image.svg"
+                            <video
                                 className="w-full object-cover"
-                                alt="Relume placeholder image"
-                            />
+                                src={'assets/peopleanimated.mp4'}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                            >
+                                Your browser does not support the video tag.
+                            </video>
                         </div>
                     </div>
                 </div>
