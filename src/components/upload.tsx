@@ -192,8 +192,9 @@ function Upload() {
     };
 
     return (
+       
         <div
-            className={`flex flex-col items-center justify-center w-full max-w-xl h-[309px] border-2 border-dashed border-gray-300 p-5 text-center transition-colors rounded-lg overflow-hidden ${isDragging ? "bg-gray-100" : ""}`}
+            className={`flex flex-col mt-40 bg-white items-center justify-center w-full max-w-xl lg:max-w-3xl h-[409px] border-2 border-dashed border-gray-300 p-5 text-center transition-colors rounded-lg overflow-hidden ${isDragging ? "bg-gray-100" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -271,6 +272,7 @@ function Upload() {
                 ))}
             </div>
         </div>
+      
     );
 }
 

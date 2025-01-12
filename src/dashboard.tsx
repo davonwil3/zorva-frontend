@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import './css/app.css';
 import Upload from "./components/upload";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpFromBracket, faChartLineUp, faDatabase, faFileChartPie } from '@fortawesome/pro-light-svg-icons';
@@ -11,6 +10,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faLightbulbOn } from '@fortawesome/pro-light-svg-icons';
 import DataSets from "./components/datasets";
 import Insights from "./components/insights";
+import { Link } from "react-router-dom";
 import './index.css'
 
 function Dashboard() {
@@ -21,14 +21,20 @@ function Dashboard() {
     };
 
     return (
-        <div className="app-page">
-            <div className="dashboard-view">
-                <div className="flex flex-col items-center h-full w-[16%] min-w-[250px] bg-[#F9F9F9] relative py-[5px]">
-                    {/* Logo Section */}
-                    <div className="flex items-center w-full h-[10%] p-[9.5px]">
-                        <h2 className="ml-[20px] mr-[13px]">Zorva</h2>
-                        <div className="w-[30px] h-[30px] bg-cover rounded-full" style={{ backgroundImage: "url('/public/assets/zorvalogo.png')" }} />
+        <div className="">
+            <div className="flex flex-row w-full h-screen min-h-[812px]" >
+                <div className="flex flex-col items-center h-screen w-[16%]  min-w-[230px] bg-[#F9F9F9] relative py-[5px]">
+                    <div className="flex items-center w-full h-[10%] px-[20px]">
+                        <Link to="/" className="flex items-center space-x-2 lg:space-x-1 cursor-pointer">
+                            <img
+                                src="/assets/logosymbol.png"
+                                alt="Logo image"
+                                className="w-8 h-8 lg:w-[50px] lg:h-[50px]"
+                            />
+                            <p className="text-2xl font-semibold lg:text-2xl">Zorva</p>
+                        </Link>
                     </div>
+
 
                     {/* Dashboard */}
                     <div className="group flex flex-row items-center mt-[6px] mb-[6px] w-full p-[9.5px] cursor-pointer hover:bg-[#E3E3E3]" onClick={() => handleViewChange("dashboard")}>
@@ -84,7 +90,7 @@ function Dashboard() {
                         <p className="text-[13px] text-[#0C2F4A] text-center mt-[6.5px] font-light group-hover:text-[#0C2F4A]">Help</p>
                     </div>
                 </div>
-                <div className="dashboard">
+                <div className="flex flex-col justify-start items-center h-full w-full bg-white self-start min-h-[812px] min-w-[230px]">
                     {currentView === 'upload' && <Upload />}
                     {currentView === 'datasets' && <DataSets />}
                     {currentView === 'insights' && <Insights />}

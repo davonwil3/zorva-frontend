@@ -288,8 +288,8 @@ export default function Datasets() {
     };
 
     return (
-        <div className="datasets-page">
-            <div className="complete-search-container">
+        <div className="flex flex-col items-center justify-start w-full h-full pt-12 ">
+           <div className="flex flex-row justify-between items-center w-[90%] mb-5 max-w-[1400px]">
                 <div className="search-container">
                     <input
                         type="text"
@@ -333,7 +333,7 @@ export default function Datasets() {
                     />
                 </div>
             </div>
-            <Box sx={{ height: 650, width: '90%' }}>
+            <Box sx={{ height: 650, width: '90%', maxWidth:"1400px", backgroundColor: '#fff',}}>
                 <DataGrid
                     rows={searchResults}
                     columns={columns}
