@@ -7,12 +7,11 @@ import { getAuth } from "firebase/auth";
 import { app } from "../index";
 
 const Insights = () => {
-    const [messages, setMessages] = useState([
-        {
-            text: "Hello! Welcome to Zorva! Start by typing a message to your AI assistant.",
-            sender: "assistant",
-        },
-    ]);
+    type Message = {
+        text: string;
+        sender: "user" | "assistant"; // Possible sender types
+    };
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState("Chatbot");
@@ -155,7 +154,7 @@ const Insights = () => {
             }
 
             const data = await response.json();
-           
+
             const loadedMessages = data.messages
                 .reverse()
                 .filter((msg: any) => msg.text.trim() !== "" || msg.sender.trim() !== "")
@@ -238,7 +237,9 @@ const Insights = () => {
 
     // -------------- NEW: Show/hide modal --------------
     const openModal = () => {
+        console.log("Opening modal");
         setIsModalOpen(true);
+
         fetchConversations();
     };
 
@@ -249,98 +250,54 @@ const Insights = () => {
     return (
         <div className="flex flex-row w-full h-full">
             {/* LEFT SECTION: Generated Insights */}
-            <div className="w-[48%] h-full flex flex-col items-start justify-start px-8 pt-12">
+            <div className="w-[49%] h-full flex flex-col items-start justify-start px-8 pt-12">
                 <h2 className="text-[19px] mb-4 ">Generated Insights</h2>
-                {savedResponses.map((response, index) => (
-                    <div
-                        key={index}
-                        className="mb-3 p-4 border border-gray-300 rounded-md shadow-sm bg-white w-full"
-                    >
-                        {response}
-                    </div>
-                ))}
+
+              {savedResponses.length === 0 ? (
+                <div className="flex flex-col items-center justify-start w-full h-full pt-8 px-8">
+                    <p className="text-center text-gray-700">No saved responses yet. Save replies here to include in future reports.</p>
+                    <img
+                        src={"/assets/savedinsights.png"}
+                        alt="Saved Insights"
+                        className="w-3/4 h-auto mt-8 opacity-65" 
+                    />
+                </div>
+                ) : (
+                    savedResponses.map((response, index) => (
+                        <div
+                            key={index}
+                            className="mb-3 p-4 border border-gray-300 rounded-md shadow-sm bg-white w-full"
+                        >
+                            {response}
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* RIGHT SECTION: Chatbot */}
-            <div className="chatbot-container flex flex-col justify-start w-[52%] h-full bg-[#faf9f9] overflow-hidden relative px-12 pt-12">
-                {/* Conversation Label */}
-                <div className="conversation-label flex flex-row items-center w-full mb-8 ">
-                    {isEditing ? (
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            autoFocus
-                            className="rounded-md border border-[#c6c5c5] focus:outline-none text-[19px] h-[30px] px-2 max-w-[50%]"
-                        />
-                    ) : (
-                        <h3
-                            onClick={handleIconClick}
-                            className="text-[19px] cursor-pointer truncate max-w-[50%]"
-                        >
-                            {title}
-                        </h3>
-                    )}
-
-                    <FontAwesomeIcon
-                        className="pen text-[15px] cursor-pointer self-center mt-1 ml-2"
-                        icon={faPen}
-                        onClick={handleIconClick}
-                    />
-
-                    <button
-                        className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out ml-auto"
-                        onClick={openModal}
-                    >
-                        Conversations
-                    </button>
-                </div>
-
-                {/* Chat View */}
-                <div className="chat-view flex flex-col justify-center items-center w-full h-full rounded-[15px] overflow-hidden ">
-                    <div className="chatbox flex flex-col w-full h-full rounded-[15px] overflow-hidden">
-                        {/* Messages */}
-                        <div className="chat-messages flex flex-col items-start w-full h-[82%] rounded-[15px] overflow-y-scroll py-[10px]">
-                            {messages.map((message, index) => (
-                                <div
-                                    key={index}
-                                    className={`
-                                        chat-message
-                                        ${message.sender === "user"
-                                            ? "user-message self-end bg-[#e1e1e3]"
-                                            : "assistant-message justify-start"
-                                        }
-                                        mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
-                                    `}
-                                >
-                                    {message.sender === "assistant" ? (
-                                        <div className="w-full">
-                                            <p className="m-0">{message.text}</p>
-                                            {/* Save button or additional actions */}
-                                            <button
-                                                onClick={() => handleSaveResponse(message.text)}
-                                                className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
-                                            >
-                                                Save
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <p className="m-0 w-full">{message.text}</p>
-                                    )}
-                                </div>
-                            ))}
+            <div className="chatbot-container flex flex-col justify-start w-[51%] h-full bg-[#faf9f9] overflow-hidden relative px-12 pt-12 border-l border-gray-200">
+                {/* Conditional Rendering for No Messages */}
+                {messages.length === 0 ? (
+                    <div className="no-messages-placeholder flex flex-col justify-center items-center w-full h-full relative">
+                        {/* Conversation Label */}
+                        <div className="conversation-label flex flex-row items-center mb-8 absolute top-0 right-0 mt-4 mr-4">
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
+                                onClick={openModal}
+                            >
+                                Conversations
+                            </button>
                         </div>
-
-                        {/* Input Area */}
-                        <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4">
+                        <h2 className="text-black text-3xl font-semibold mb-6">What can I help with?</h2>
+                        <p> You can start by choosing a file or asking about a file in the syystem</p>
+                        <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4 mt-[40px]">
                             <textarea
                                 ref={textareaRef}
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Type a message"
                                 rows={1}
-                                className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[15px] text-[15px] resize-none box-border mt-[10px]"
+                                className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border "
                             />
                             <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
                                 <div className="left-button">
@@ -361,9 +318,111 @@ const Insights = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                ) : (
+                    // If there are messages, render the chat interface
+                    <>
+                        {/* Conversation Label */}
+                        <div className="conversation-label flex flex-row items-center w-full mb-8">
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    autoFocus
+                                    className="rounded-md border border-[#c6c5c5] focus:outline-none text-[19px] h-[30px] px-2 max-w-[50%]"
+                                />
+                            ) : (
+                                <>
+                                    <h3
+                                        onClick={handleIconClick}
+                                        className="text-[19px] cursor-pointer truncate max-w-[50%]"
+                                    >
+                                        {title}
+                                    </h3>
+                                    <FontAwesomeIcon
+                                        className="pen text-[15px] cursor-pointer self-center mt-1 ml-2"
+                                        icon={faPen}
+                                        onClick={handleIconClick}
+                                    />
+                                </>
+                            )}
+                            <button
+                                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out ml-auto"
+                                onClick={openModal}
+                            >
+                                Conversations
+                            </button>
+                        </div>
 
-                {/* -------------- NEW: The Modal for listing conversations -------------- */}
+                        {/* Chat Interface */}
+                        <div className="chat-view flex flex-col justify-center items-center w-full h-full rounded-[15px] overflow-hidden">
+                            <div className="chatbox flex flex-col w-full h-full rounded-[15px] overflow-hidden">
+                                {/* Messages */}
+                                <div className="chat-messages flex flex-col items-start w-full h-[82%] rounded-[15px] overflow-y-scroll py-[10px]">
+                                    {messages.map((message, index) => (
+                                        <div
+                                            key={index}
+                                            className={`
+                  chat-message
+                  ${message.sender === "user"
+                                                    ? "user-message self-end bg-[#e1e1e3]"
+                                                    : "assistant-message justify-start"
+                                                }
+                  mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
+                `}
+                                        >
+                                            {message.sender === "assistant" ? (
+                                                <div className="w-full">
+                                                    <p className="m-0">{message.text}</p>
+                                                    <button
+                                                        onClick={() => handleSaveResponse(message.text)}
+                                                        className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <p className="m-0 w-full">{message.text}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Input Area */}
+                                <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4">
+                                    <textarea
+                                        ref={textareaRef}
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder="Type a message"
+                                        rows={1}
+                                        className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[15px] text-[15px] resize-none box-border mt-[10px]"
+                                    />
+                                    <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
+                                        <div className="left-button">
+                                            <FontAwesomeIcon
+                                                icon={faPaperclipVertical as IconProp}
+                                                className="text-[22px]"
+                                            />
+                                        </div>
+                                        <div
+                                            className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
+                                            onClick={sendMessage}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faArrowUp as IconProp}
+                                                className="text-[20px]"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {/* Modal for listing conversations */}
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         {/* Overlay */}
@@ -382,7 +441,7 @@ const Insights = () => {
                                         className="cursor-pointer p-2 border-b hover:bg-gray-100"
                                         onClick={() => handleSelectConversation(conv)}
                                     >
-                                        {conv.title || `Untitled (${conv.threadID})`}
+                                        {conv.title || "Untitled Conversation"}
                                     </li>
                                 ))}
                             </ul>
@@ -395,8 +454,11 @@ const Insights = () => {
                         </div>
                     </div>
                 )}
-                {/* -------------- END MODAL -------------- */}
             </div>
+
+
+
+
         </div>
     );
 };
