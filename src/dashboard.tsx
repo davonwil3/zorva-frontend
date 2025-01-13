@@ -23,7 +23,7 @@ function Dashboard() {
     return (
         <div className="">
             <div className="flex flex-row w-full h-screen min-h-[812px]" >
-                <div className="flex flex-col items-center h-screen w-[16%]  min-w-[230px] bg-[#F9F9F9] relative py-[5px]">
+                <div className="flex flex-col items-center h-screen w-[16%]  min-w-[220px] bg-[#F9F9F9] relative py-[5px]">
                     <div className="flex items-center w-full h-[10%] px-[20px]">
                         <Link to="/" className="flex items-center space-x-2 lg:space-x-1 cursor-pointer">
                             <img

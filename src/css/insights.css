@@ -1,6 +1,4 @@
-* {
-    font-family: sans-serif;
-}
+
 .chatbot-container {
     display: flex;
     flex-direction: column;
