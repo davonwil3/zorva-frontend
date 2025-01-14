@@ -1,24 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperclipVertical, faArrowUp } from "@fortawesome/pro-regular-svg-icons";
+import { faTrash } from "@fortawesome/pro-regular-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faPen } from "@fortawesome/pro-solid-svg-icons";
 import { getAuth } from "firebase/auth";
 import { app } from "../index";
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import '../css/insights.css';
+
 
 const Insights = () => {
     type Message = {
         text: string;
         sender: "user" | "assistant"; // Possible sender types
+        isLoading?: boolean; // Optional property for loading messages
     };
+    const chatMessagesRef = useRef<HTMLDivElement>(null);
+
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState("Chatbot");
     const [threadID, setThreadID] = useState<string | null>(null);
+    const [insightsSection, setInsightSection] = React.useState('chat');
+    const [loading, setLoading] = useState(false);
 
     // Holds the assistant messages that the user “saves”
-    const [savedResponses, setSavedResponses] = useState<string[]>([]);
+    const [savedResponses, setSavedResponses] = useState<{ id: number; text: string }[]>([]);
 
     // For auto-resizing the textarea
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -28,6 +39,12 @@ const Insights = () => {
     // -- NEW: Modal control & conversations list
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [conversations, setConversations] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (chatMessagesRef.current) {
+            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     // Auto-resize the textarea based on content
     useEffect(() => {
@@ -40,6 +57,13 @@ const Insights = () => {
     // Handle input change for conversation title
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(event.target.value);
+    };
+
+    // handle section change
+    const handleInsightSection = (event: React.MouseEvent<HTMLElement>, newSection: string | null) => {
+        if (newSection) {
+            setInsightSection(newSection);
+        }
     };
 
     const handleBlur = async () => {
@@ -98,13 +122,41 @@ const Insights = () => {
 
             const data = await res.json();
             console.log(data.message); // "Insight saved successfully"
-            setSavedResponses((prev) => [...prev, responseText]);
+
+            // Update state with saved insight ID and text
+            setSavedResponses((prev) => [
+                ...prev,
+                { id: data.savedInsight.insightID, text: data.savedInsight.text },
+            ]);
         } catch (error) {
             console.error("Error saving insight:", error);
         }
     };
+    // Handle deleting a saved response
+    const handleDeleteResponse = async (insightID: number) => {
+        try {
+            const res = await fetch("http://localhost:10000/api/deleteInsight", {
+                method: "POST", // Must match the server route method
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ threadID, insightID }),
+            });
 
-    // -------------- NEW: fetch list of conversations --------------
+            if (!res.ok) {
+                throw new Error(`Failed to delete response with ID: ${insightID}`);
+            }
+
+            // Remove the response locally after successful deletion
+            setSavedResponses((prev) => prev.filter((response) => response.id !== insightID));
+            console.log(`Response with ID: ${insightID} deleted successfully`);
+        } catch (error) {
+            console.error("Error deleting response:", error);
+        }
+    };
+
+
+    // -------------- fetch list of conversations --------------
     const fetchConversations = async () => {
         try {
             const response = await fetch("http://localhost:10000/api/getConversations", {
@@ -124,7 +176,7 @@ const Insights = () => {
         }
     };
 
-    // -------------- UPDATED: handle selecting a conversation --------------
+    // --------------  handle selecting a conversation --------------
     const handleSelectConversation = async (conversation: any) => {
         // 1. Close the modal
         setIsModalOpen(false);
@@ -133,10 +185,14 @@ const Insights = () => {
         setThreadID(conversation.threadID);
         setTitle(conversation.title || "Untitled Conversation");
 
-        const insights = conversation.savedInsights?.map((insight: any) => insight.text) || [];
+        // Make sure to map each saved insight to { id, text }
+        const insights = conversation.savedInsights?.map((insight: any) => ({
+            id: insight.insightID,
+            text: insight.text,
+        })) || [];
         setSavedResponses(insights);
 
-        // 3. Fetch the messages from your updated listMessages endpoint
+        // 3. Fetch the messages
         try {
             const response = await fetch("http://localhost:10000/api/listMessages", {
                 method: "POST",
@@ -159,7 +215,6 @@ const Insights = () => {
                 .reverse()
                 .filter((msg: any) => msg.text.trim() !== "" || msg.sender.trim() !== "")
                 .map((msg: any) => {
-                    // If the backend returns "assistant" or "user" exactly, just map them directly:
                     const sender = msg.sender === "user" ? "user" : "assistant";
                     return {
                         text: msg.text,
@@ -174,68 +229,146 @@ const Insights = () => {
     };
 
     // Handle chat send
+    // Pseudocode in your React component
     const sendMessage = async () => {
         if (!input.trim()) return;
 
+        // 1. Immediately add user message to UI
         setMessages((prev) => [...prev, { text: input, sender: "user" }]);
         const userMessage = input.trim();
         setInput("");
 
+        // 2. Show a "Loading..." message
+        setMessages((prev) => [...prev, { text: "Loading...", sender: "assistant", isLoading: true }]);
+
         try {
-            const response = await fetch("http://localhost:10000/api/chat", {
+            // 3. Call your chat endpoint
+            const chatRes = await fetch("http://localhost:10000/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     firebaseUid,
                     query: userMessage,
-                    // Pass threadID only if we already have one
-                    threadID: threadID || undefined,
-                    title,
+                    threadID, // might be null if new conversation
+                    title,    // might be an empty string for a new conversation
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error(`Server returned status: ${response.status}`);
+            if (!chatRes.ok) {
+                throw new Error(`Server returned status: ${chatRes.status}`);
             }
 
-            const data = await response.json();
+            // 4. Parse the chat response
+            const data = await chatRes.json();
 
+            // 5. If we just got a new thread, store it in state
+            let newThreadID = threadID;
             if (data.threadID && !threadID) {
-                setThreadID(data.threadID);
-
-                fetch("http://localhost:10000/api/generateTitle", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        firebaseUid,
-                        query: userMessage,
-                    }),
-                })
-                    .then(async (res) => {
-                        if (!res.ok) {
-                            throw new Error(
-                                `Error generating title, status: ${res.status}`
-                            );
-                        }
-                        const titleData = await res.json();
-                        setTitle(titleData.title);
-                    })
-                    .catch((err) => {
-                        console.error("Error fetching title:", err);
-                    });
+                // brand new conversation
+                newThreadID = data.threadID;
+                setThreadID(newThreadID);
             }
 
-            if (data.title) {
-                setTitle(data.title);
-            }
+            // 6. Update the "Loading..." message with the AI's reply
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg.isLoading
+                        ? { text: data.response, sender: "assistant" }
+                        : msg
+                )
+            );
 
-            setMessages((prev) => [...prev, { text: data.response, sender: "assistant" }]);
+            // 7. Now, if it’s a new conversation, handle the title on the frontend
+            if (!threadID && newThreadID) {
+                // 7a. Generate the title using the user’s first query
+                const generatedTitle = await generateTitleFrontend(userMessage);
+                console.log("Generated title:", generatedTitle);
+
+                // 7b. Save the title to the server (and to local state)
+                if (generatedTitle) {
+                    await saveTitleFrontend(newThreadID, generatedTitle);
+                    setTitle(generatedTitle);
+                }
+            }
         } catch (error) {
             console.error("Error in sendMessage:", error);
+
+            // Replace the loading message with an error message
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg.isLoading
+                        ? { text: "Something went wrong. Please try again.", sender: "assistant" }
+                        : msg
+                )
+            );
         }
     };
 
-    // -------------- NEW: Show/hide modal --------------
+    const generateTitleFrontend = async (query: string): Promise<string | null> => {
+        try {
+            const res = await fetch("http://localhost:10000/api/generateTitle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ firebaseUid, query }),
+            });
+            if (!res.ok) {
+                throw new Error(`Title generation failed with status: ${res.status}`);
+            }
+            const data = await res.json();
+            return data.title;
+        } catch (err) {
+            console.error("Error generating title:", err);
+            return null;
+        }
+    };
+    /**
+   * Calls the /api/saveTitle endpoint to store the generated title in the DB.
+   */
+    const saveTitleFrontend = async (threadID: string, newTitle: string) => {
+        try {
+            const res = await fetch("http://localhost:10000/api/saveTitle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    firebaseUid,
+                    threadID,
+                    title: newTitle,
+                }),
+            });
+            if (!res.ok) {
+                throw new Error(`Saving title failed with status: ${res.status}`);
+            }
+            const data = await res.json();
+            console.log("Title saved:", data.title);
+        } catch (err) {
+            console.error("Error saving title:", err);
+        }
+    };
+
+
+    const handleDeleteConversation = async (conversation: any) => {
+        try {
+
+            const response = await fetch(`http://localhost:10000/api/deleteConversation`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ threadID: conversation.threadID }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete conversation");
+            }
+
+            // Remove the deleted conversation from the state
+            setConversations((prev) => prev.filter((conv) => conv.threadID !== conversation.threadID));
+            console.log("Conversation deleted successfully");
+        } catch (error) {
+            console.error("Error deleting conversation:", error);
+        }
+    };
+
+
+    // --------------  Show/hide modal --------------
     const openModal = () => {
         console.log("Opening modal");
         setIsModalOpen(true);
@@ -248,156 +381,105 @@ const Insights = () => {
     };
 
     return (
-        <div className="flex flex-row w-full h-full">
-            {/* LEFT SECTION: Generated Insights */}
-            <div className="w-[49%] h-full flex flex-col items-start justify-start px-8 pt-12">
-                <h2 className="text-[19px] mb-4 ">Generated Insights</h2>
-
-              {savedResponses.length === 0 ? (
-                <div className="flex flex-col items-center justify-start w-full h-full pt-8 px-8">
-                    <p className="text-center text-gray-700">No saved responses yet. Save replies here to include in future reports.</p>
-                    <img
-                        src={"/assets/savedinsights.png"}
-                        alt="Saved Insights"
-                        className="w-3/4 h-auto mt-8 opacity-65" 
-                    />
-                </div>
-                ) : (
-                    savedResponses.map((response, index) => (
-                        <div
-                            key={index}
-                            className="mb-3 p-4 border border-gray-300 rounded-md shadow-sm bg-white w-full"
+        <div className="flex flex-col w-full h-full ">
+            <div className=" flex flex-row w-full ">
+                <div className=" flex flex-row w-[46%] relative  h-[64px] ">
+                    <ToggleButtonGroup
+                        value={insightsSection}
+                        exclusive
+                        onChange={handleInsightSection}
+                        aria-label="insights section"
+                        className="mb-4 absolute top-4 left-4"
+                    >
+                        <ToggleButton
+                            value="quick"
+                            aria-label="web insights"
+                            classes={{
+                                root: 'py-2 px-4 text-sm md:py-3 md:px-6 md:text-base lg:py-2 lg:px-8 lg:text-lg',
+                            }}
                         >
-                            {response}
-                        </div>
-                    ))
-                )}
+                            Quick Insights
+                        </ToggleButton>
+                        <ToggleButton
+                            value="chat"
+                            aria-label="saved insights"
+                            classes={{
+                                root: 'py-2 px-4 text-sm md:py-3 md:px-6 md:text-base lg:py-4 lg:px-8 lg:text-lg',
+                            }}
+                        >
+                            Data Chat
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </div>
+
+                <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] "></div>
             </div>
+            <div className="flex flex-row w-full h-full">
+                {/* LEFT SECTION: Generated Insights */}
+                <div className="w-[46%] h-full flex flex-col items-start justify-start px-8 pt-8">
+                    <h2 className="text-[18px]">Saved Insights</h2>
 
-            {/* RIGHT SECTION: Chatbot */}
-            <div className="chatbot-container flex flex-col justify-start w-[51%] h-full bg-[#faf9f9] overflow-hidden relative px-12 pt-12 border-l border-gray-200">
-                {/* Conditional Rendering for No Messages */}
-                {messages.length === 0 ? (
-                    <div className="no-messages-placeholder flex flex-col justify-center items-center w-full h-full relative">
-                        {/* Conversation Label */}
-                        <div className="conversation-label flex flex-row items-center mb-8 absolute top-0 right-0 mt-4 mr-4">
-                            <button
-                                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
-                                onClick={openModal}
-                            >
-                                Conversations
-                            </button>
-                        </div>
-                        <h2 className="text-black text-3xl font-semibold mb-6">What can I help with?</h2>
-                        <p> You can start by choosing a file or asking about a file in the syystem</p>
-                        <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4 mt-[40px]">
-                            <textarea
-                                ref={textareaRef}
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                placeholder="Type a message"
-                                rows={1}
-                                className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border "
+                    {savedResponses.length === 0 ? (
+                        <div className="flex flex-col items-center justify-start w-full h-full pt-8 px-8">
+                            <p className="text-center text-[16px] text-gray-600">
+                                No saved responses yet. Saved replies can be included in future reports.
+                            </p>
+                            <img
+                                src={"/assets/savedinsights.png"}
+                                alt="Saved Insights"
+                                className="w-3/4 h-auto mt-8 opacity-65"
                             />
-                            <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
-                                <div className="left-button">
-                                    <FontAwesomeIcon
-                                        icon={faPaperclipVertical as IconProp}
-                                        className="text-[22px]"
-                                    />
-                                </div>
-                                <div
-                                    className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
-                                    onClick={sendMessage}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faArrowUp as IconProp}
-                                        className="text-[20px]"
-                                    />
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                ) : (
-                    // If there are messages, render the chat interface
-                    <>
-                        {/* Conversation Label */}
-                        <div className="conversation-label flex flex-row items-center w-full mb-8">
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    autoFocus
-                                    className="rounded-md border border-[#c6c5c5] focus:outline-none text-[19px] h-[30px] px-2 max-w-[50%]"
-                                />
-                            ) : (
-                                <>
-                                    <h3
-                                        onClick={handleIconClick}
-                                        className="text-[19px] cursor-pointer truncate max-w-[50%]"
+                    ) : (
+                        <div className="flex flex-col w-full flex-grow h-0 overflow-hidden mt-4">
+                            <div className="flex-grow overflow-y-scroll">
+                                {savedResponses.map((response) => (
+                                    <div
+                                        key={response.id}
+                                        className="relative mb-3 p-4 border border-gray-300 rounded-md shadow-sm bg-white w-full whitespace-pre-wrap"
                                     >
-                                        {title}
-                                    </h3>
-                                    <FontAwesomeIcon
-                                        className="pen text-[15px] cursor-pointer self-center mt-1 ml-2"
-                                        icon={faPen}
-                                        onClick={handleIconClick}
-                                    />
-                                </>
-                            )}
-                            <button
-                                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out ml-auto"
-                                onClick={openModal}
-                            >
-                                Conversations
-                            </button>
+                                        {response.text}
+                                        {/* Trash icon at the bottom right */}
+                                        <FontAwesomeIcon
+                                            icon={faTrash as IconProp}
+                                            className="absolute bottom-2 right-2 text-gray-500 hover:text-red-500 cursor-pointer"
+                                            onClick={() => handleDeleteResponse(response.id)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            {/* Fixed space or element at the bottom */}
+                            <div className="h-16 w-full mt-4 rounded-md shadow-sm flex items-center justify-center"></div>
                         </div>
+                    )}
+                </div>
 
-                        {/* Chat Interface */}
-                        <div className="chat-view flex flex-col justify-center items-center w-full h-full rounded-[15px] overflow-hidden">
-                            <div className="chatbox flex flex-col w-full h-full rounded-[15px] overflow-hidden">
-                                {/* Messages */}
-                                <div className="chat-messages flex flex-col items-start w-full h-[82%] rounded-[15px] overflow-y-scroll py-[10px]">
-                                    {messages.map((message, index) => (
-                                        <div
-                                            key={index}
-                                            className={`
-                  chat-message
-                  ${message.sender === "user"
-                                                    ? "user-message self-end bg-[#e1e1e3]"
-                                                    : "assistant-message justify-start"
-                                                }
-                  mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
-                `}
-                                        >
-                                            {message.sender === "assistant" ? (
-                                                <div className="w-full">
-                                                    <p className="m-0">{message.text}</p>
-                                                    <button
-                                                        onClick={() => handleSaveResponse(message.text)}
-                                                        className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
-                                                    >
-                                                        Save
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <p className="m-0 w-full">{message.text}</p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
 
-                                {/* Input Area */}
-                                <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4">
+                {/* RIGHT SECTION: Chatbot */}
+                <div className="chatbot-container flex flex-col justify-start w-[54%] h-full bg-[#faf9f9] overflow-hidden  relative px-12 pt-4 pb-8 border-l border-gray-200">
+                    {/* Conditional Rendering for No Messages */}
+                    {messages.length === 0 ? (
+                        <div className="no-messages-placeholder flex flex-col justify-start pt-20 items-center w-full h-full relative">
+                            {/* Conversation Label */}
+                            <div className="conversation-label flex flex-row items-center mb-8 absolute top-0 right-0 mb-8  mr-4">
+                                <button
+                                    className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
+                                    onClick={openModal}
+                                >
+                                    Conversations
+                                </button>
+                            </div>
+                            <div className="flex flex-col relative bottom-10 w-full items-center justify-center mt-8 ">
+                                <h2 className="text-black text-3xl font-bold mb-6">What can I help with?</h2>
+                                <p> You can start by choosing a file or asking about a file in the system</p>
+                                <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4 mt-[40px] ">
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         placeholder="Type a message"
                                         rows={1}
-                                        className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[15px] text-[15px] resize-none box-border mt-[10px]"
+                                        className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border "
                                     />
                                     <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
                                         <div className="left-button">
@@ -419,46 +501,192 @@ const Insights = () => {
                                 </div>
                             </div>
                         </div>
-                    </>
-                )}
 
-                {/* Modal for listing conversations */}
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center">
-                        {/* Overlay */}
-                        <div
-                            className="absolute inset-0 bg-black opacity-50"
-                            onClick={closeModal}
-                        ></div>
-                        {/* Modal content */}
-                        <div className="relative bg-white rounded-lg p-6 z-10 w-[400px] max-h-[80%] overflow-auto">
-                            <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
-                            {conversations.length === 0 && <p>No conversations found</p>}
-                            <ul>
-                                {conversations.map((conv) => (
-                                    <li
-                                        key={conv._id}
-                                        className="cursor-pointer p-2 border-b hover:bg-gray-100"
-                                        onClick={() => handleSelectConversation(conv)}
-                                    >
-                                        {conv.title || "Untitled Conversation"}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button
-                                className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg"
+                    ) : (
+                        // If there are messages, render the chat interface
+                        <>
+                            {/* Conversation Label */}
+                            <div className="conversation-label flex flex-row items-center w-full mb-8">
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={title}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        autoFocus
+                                        className="rounded-md border border-[#c6c5c5] focus:outline-none text-[19px] h-[30px] px-2 max-w-[50%]"
+                                    />
+                                ) : (
+                                    <>
+                                        <h3
+                                            onClick={handleIconClick}
+                                            className="text-[19px] cursor-pointer truncate max-w-[50%]"
+                                        >
+                                            {title}
+                                        </h3>
+                                        <FontAwesomeIcon
+                                            className="pen text-[15px] cursor-pointer self-center mt-1 ml-2"
+                                            icon={faPen}
+                                            onClick={handleIconClick}
+                                        />
+                                    </>
+                                )}
+                                <button
+                                    className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out ml-auto"
+                                    onClick={openModal}
+                                >
+                                    Conversations
+                                </button>
+                            </div>
+
+                            {/* Chat Interface */}
+                            <div className="chat-view flex flex-col w-full h-full rounded-[15px] overflow-hidden">
+                                <div className="chatbox flex flex-col w-full h-full rounded-[15px] overflow-hidden">
+                                    {/* Messages */}
+                                    <div className="chat-messages flex-grow flex flex-col items-start w-full h-0 rounded-[15px] overflow-y-scroll py-[10px]" ref={chatMessagesRef}>
+                                        {messages.map((message, index) => (
+                                            <div
+                                                key={index}
+                                                className={`
+                                              chat-message
+                                              ${message.sender === "user"
+                                                        ? "user-message self-end bg-[#e1e1e3]"
+                                                        : "assistant-message justify-start"
+                                                    }
+                                              mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
+                                            `}
+                                            >
+                                                {message.isLoading ? (
+                                                    <div className="flex items-center">
+                                                        <img
+                                                            src="/assets/logosymbol.png"
+                                                            alt="Loading..."
+                                                            className="spinner h-6 w-6 mr-2"
+                                                        />
+                                                        <span className="text-gray-500 text-sm">Thinking...</span>
+                                                    </div>
+                                                ) : message.sender === "assistant" ? (
+                                                    <div className="w-full flex items-start">
+                                                        {/* Assistant's Logo */}
+                                                        <img
+                                                            src="/assets/logosymbol.png" // Path to your logo
+                                                            alt="Assistant Logo"
+                                                            className="h-6 w-6 mr-2 " // Adjust height, width, spacing
+                                                        />
+                                                        {/* Assistant's Text */}
+                                                        <div>
+                                                            <p className="m-0 whitespace-pre-wrap">{message.text}</p>
+                                                            <button
+                                                                onClick={() => handleSaveResponse(message.text)}
+                                                                className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
+                                                            >
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="m-0 whitespace-pre-wrap w-full">{message.text}</p>
+                                                )}
+                                            </div>
+
+                                        ))}
+                                    </div>
+
+                                    {/* Input Area */}
+                                    <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] px-4">
+                                        <textarea
+                                            ref={textareaRef}
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            placeholder="Type a message"
+                                            rows={1}
+                                            className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[15px] text-[15px] resize-none box-border mt-[10px]"
+                                        />
+                                        <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
+                                            <div className="left-button">
+                                                <FontAwesomeIcon
+                                                    icon={faPaperclipVertical as IconProp}
+                                                    className="text-[22px]"
+                                                />
+                                            </div>
+                                            <div
+                                                className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
+                                                onClick={sendMessage}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faArrowUp as IconProp}
+                                                    className="text-[20px]"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </>
+                    )}
+
+                    {/* Modal for listing conversations */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            {/* Overlay */}
+                            <div
+                                className="absolute inset-0 bg-black opacity-50"
                                 onClick={closeModal}
-                            >
-                                Close
-                            </button>
+                            ></div>
+                            {/* Modal content */}
+                            <div className="relative bg-white rounded-lg p-6 z-10 w-[600px] max-h-[80%] overflow-auto">
+                                <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
+
+                                {conversations.length === 0 ? (
+                                    <p className="text-gray-500">No conversations found</p>
+                                ) : (
+                                    <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+                                        <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
+                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
+                                                <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {conversations.map((conv) => (
+                                                <tr key={conv._id} className="border-t border-gray-200 hover:bg-gray-50">
+                                                    {/* Hidden Column for conversation_id */}
+                                                    <td
+                                                        className="px-4 py-2 text-sm text-gray-800 cursor-pointer"
+                                                        onClick={() => handleSelectConversation(conv)}
+                                                    >
+                                                        {conv.title || "Untitled Conversation"}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-sm text-gray-600">
+                                                        {new Date(conv.date).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-center">
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash as IconProp}
+                                                            className="text-red-500 cursor-pointer hover:text-red-700 text[20px]"
+                                                            onClick={() => handleDeleteConversation(conv)}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+
+                                <button
+                                    className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 focus:outline-none"
+                                    onClick={closeModal}
+                                >
+                                    Close
+                                </button>
+                            </div>
+
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-
-
-
-
         </div>
     );
 };
