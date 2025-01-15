@@ -4,8 +4,11 @@ import { faPaperclipVertical, faArrowUp } from "@fortawesome/pro-regular-svg-ico
 import { faTrash } from "@fortawesome/pro-regular-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faPen } from "@fortawesome/pro-solid-svg-icons";
+import { faFile } from "@fortawesome/pro-solid-svg-icons";
+import { faTimesCircle } from "@fortawesome/pro-solid-svg-icons";
 import { getAuth } from "firebase/auth";
 import { app } from "../index";
+import { faCirclePlus } from "@fortawesome/pro-regular-svg-icons";
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import '../css/insights.css';
@@ -16,6 +19,7 @@ const Insights = () => {
         text: string;
         sender: "user" | "assistant"; // Possible sender types
         isLoading?: boolean; // Optional property for loading messages
+        file?: { name: string; type: string }; // Optional property for uploaded
     };
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
@@ -23,10 +27,13 @@ const Insights = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    const [title, setTitle] = useState("Chatbot");
+    const [title, setTitle] = useState("Untitled");
     const [threadID, setThreadID] = useState<string | null>(null);
     const [insightsSection, setInsightSection] = React.useState('chat');
     const [loading, setLoading] = useState(false);
+    const [showTooltip, setShowTooltip] = useState(false);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null); // To store the uploaded file
 
     // Holds the assistant messages that the user “saves”
     const [savedResponses, setSavedResponses] = useState<{ id: number; text: string }[]>([]);
@@ -53,6 +60,26 @@ const Insights = () => {
             textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
         }
     }, [input]);
+
+    // Handle clicks outside the tooltip
+    const handleClickOutside = (event: MouseEvent) => {
+        if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
+            setShowTooltip(false); // Close tooltip if clicking outside
+        }
+    };
+
+    // Add and clean up event listener for clicks outside the tooltip
+    useEffect(() => {
+        if (showTooltip) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showTooltip]);
 
     // Handle input change for conversation title
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,47 +256,56 @@ const Insights = () => {
     };
 
     // Handle chat send
-    // Pseudocode in your React component
+
     const sendMessage = async () => {
-        if (!input.trim()) return;
-
-        // 1. Immediately add user message to UI
-        setMessages((prev) => [...prev, { text: input, sender: "user" }]);
-        const userMessage = input.trim();
-        setInput("");
-
-        // 2. Show a "Loading..." message
-        setMessages((prev) => [...prev, { text: "Loading...", sender: "assistant", isLoading: true }]);
-
         try {
-            // 3. Call your chat endpoint
+            console.log("Send Message Called");
+    
+            // Validate input or uploaded file
+            if ((!input || !input.trim()) && !uploadedFile) {
+                console.warn("Input is empty and no file uploaded");
+                return;
+            }
+    
+            // Add file and/or text as one combined message
+            const combinedMessage = {
+                text: input ? input.trim() : "",
+                sender: "user",
+                file: uploadedFile ? { name: uploadedFile.name, type: uploadedFile.type } : null,
+            };
+            setMessages((prev) => [...prev, combinedMessage as Message]);
+    
+            setInput(""); // Clear input
+            setMessages((prev) => [
+                ...prev,
+                { text: "Loading...", sender: "assistant", isLoading: true },
+            ]);
+    
+            // Prepare FormData
+            const formData = new FormData();
+            if (uploadedFile) formData.append("file", uploadedFile, uploadedFile.name);
+            if (input && input.trim()) formData.append("query", input.trim());
+            if (firebaseUid) formData.append("firebaseUid", firebaseUid);
+            if (threadID) formData.append("threadID", threadID);
+            if (title) formData.append("title", title);
+
+            console.log("Firebase UID:", firebaseUid); // Log the UID to verify
+
+    
+            // Send to backend
             const chatRes = await fetch("http://localhost:10000/api/chat", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    firebaseUid,
-                    query: userMessage,
-                    threadID, // might be null if new conversation
-                    title,    // might be an empty string for a new conversation
-                }),
+                body: formData,
             });
-
+    
             if (!chatRes.ok) {
-                throw new Error(`Server returned status: ${chatRes.status}`);
+                const errorText = await chatRes.text(); // Debug backend error
+                throw new Error(`Server error ${chatRes.status}: ${errorText}`);
             }
-
-            // 4. Parse the chat response
+    
             const data = await chatRes.json();
-
-            // 5. If we just got a new thread, store it in state
-            let newThreadID = threadID;
-            if (data.threadID && !threadID) {
-                // brand new conversation
-                newThreadID = data.threadID;
-                setThreadID(newThreadID);
-            }
-
-            // 6. Update the "Loading..." message with the AI's reply
+    
+            // Update assistant's response
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
@@ -277,23 +313,25 @@ const Insights = () => {
                         : msg
                 )
             );
-
-            // 7. Now, if it’s a new conversation, handle the title on the frontend
-            if (!threadID && newThreadID) {
-                // 7a. Generate the title using the user’s first query
-                const generatedTitle = await generateTitleFrontend(userMessage);
-                console.log("Generated title:", generatedTitle);
-
-                // 7b. Save the title to the server (and to local state)
+    
+            // Handle new conversation logic
+            if (!threadID && data.threadID) {
+                setThreadID(data.threadID);
+                const generatedTitle = await generateTitleFrontend(input || "");
                 if (generatedTitle) {
-                    await saveTitleFrontend(newThreadID, generatedTitle);
+                    await saveTitleFrontend(data.threadID, generatedTitle);
                     setTitle(generatedTitle);
                 }
             }
+    
+            // Clear uploaded file
+            setUploadedFile(null);
         } catch (error) {
-            console.error("Error in sendMessage:", error);
-
-            // Replace the loading message with an error message
+            if (error instanceof Error) {
+                console.error("Error in sendMessage:", error.message);
+            } else {
+                console.error("Error in sendMessage:", error);
+            }
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
@@ -303,6 +341,8 @@ const Insights = () => {
             );
         }
     };
+    
+
 
     const generateTitleFrontend = async (query: string): Promise<string | null> => {
         try {
@@ -380,6 +420,38 @@ const Insights = () => {
         setIsModalOpen(false);
     };
 
+    // --------------  Start a new conversation --------------
+    const startNewConversation = () => {
+        setThreadID(null);
+        setTitle("Untitled");
+        setMessages([]);
+        setSavedResponses([]);
+    };
+
+    // --------------  Upload from stored files --------------
+    const handleUploadFromStoredFiles = () => {
+        console.log("Uploading from stored files");
+    };
+
+    // --------------  Upload from computer --------------
+    const handleUploadFromComputer = () => {
+        console.log("Uploading from computer");
+    };
+
+    // --------------  Handle file upload --------------
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setUploadedFile(event.target.files[0]); // Store uploaded file
+            setShowTooltip(false); // Close the tooltip after file upload
+        }
+    };
+
+
+    const removeFile = () => {
+        setUploadedFile(null); // Remove the uploaded file
+    };
+
+
     return (
         <div className="flex flex-col w-full h-full ">
             <div className=" flex flex-row w-full ">
@@ -412,12 +484,21 @@ const Insights = () => {
                     </ToggleButtonGroup>
                 </div>
 
-                <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] "></div>
+                <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] relative ">
+                    {/* New Conversation Icon */}
+                    {messages.length > 0 && (
+                        <FontAwesomeIcon
+                            icon={faCirclePlus as IconProp}
+                            className="absolute top-8 right-8 text-blue-500 text-[25px] cursor-pointer hover:text-blue-600"
+                            onClick={startNewConversation} // Define this function for starting a new conversation
+                        />
+                    )}
+                </div>
             </div>
             <div className="flex flex-row w-full h-full">
                 {/* LEFT SECTION: Generated Insights */}
                 <div className="w-[46%] h-full flex flex-col items-start justify-start px-8 pt-8">
-                    <h2 className="text-[18px]">Saved Insights</h2>
+                    <h2 className="text-[17px] font-semibold ">Saved Insights</h2>
 
                     {savedResponses.length === 0 ? (
                         <div className="flex flex-col items-center justify-start w-full h-full pt-8 px-8">
@@ -457,11 +538,12 @@ const Insights = () => {
 
                 {/* RIGHT SECTION: Chatbot */}
                 <div className="chatbot-container flex flex-col justify-start w-[54%] h-full bg-[#faf9f9] overflow-hidden  relative px-12 pt-4 pb-8 border-l border-gray-200">
+
                     {/* Conditional Rendering for No Messages */}
                     {messages.length === 0 ? (
                         <div className="no-messages-placeholder flex flex-col justify-start pt-20 items-center w-full h-full relative">
                             {/* Conversation Label */}
-                            <div className="conversation-label flex flex-row items-center mb-8 absolute top-0 right-0 mb-8  mr-4">
+                            <div className="conversation-label flex flex-row items-center absolute top-0 right-0 mb-16  mr-4">
                                 <button
                                     className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-300 ease-in-out"
                                     onClick={openModal}
@@ -469,42 +551,63 @@ const Insights = () => {
                                     Conversations
                                 </button>
                             </div>
-                            <div className="flex flex-col relative bottom-10 w-full items-center justify-center mt-8 ">
+                            <div className="flex flex-col relative bottom-10 w-full items-center justify-center mt-16">
                                 <h2 className="text-black text-3xl font-bold mb-6">What can I help with?</h2>
-                                <p> You can start by choosing a file or asking about a file in the system</p>
-                                <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-hidden px-4 mt-[40px] ">
+                                <p className="text-md"> You can start by choosing a file or asking about a file in the system</p>
+                                <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-visible px-4 mt-[40px]">
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
                                         onChange={(e) => setInput(e.target.value)}
                                         placeholder="Type a message"
                                         rows={1}
-                                        className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border "
+                                        className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border"
                                     />
-                                    <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
-                                        <div className="left-button">
+                                    <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px] relative">
+                                        <div className="left-button relative">
+                                            {/* Paperclip Icon */}
                                             <FontAwesomeIcon
                                                 icon={faPaperclipVertical as IconProp}
-                                                className="text-[22px]"
+                                                className="text-[22px] cursor-pointer"
+                                                onClick={() => setShowTooltip(!showTooltip)} // Toggle tooltip
                                             />
+
+                                            {/* Tooltip */}
+                                            {showTooltip && (
+                                                <div ref={tooltipRef} className="absolute bottom-[110%] left-0 w-max bg-white border border-gray-300 shadow-lg rounded-md p-2 z-20">
+                                                    <button
+                                                        className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
+                                                        onClick={handleUploadFromStoredFiles}
+                                                    >
+                                                        Upload from stored files
+                                                    </button>
+                                                    <button
+                                                        className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
+                                                        onClick={handleUploadFromComputer}
+                                                    >
+                                                        Upload from computer <span className="text-gray-500">(temporary)</span>
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
+
+                                        {/* Send Message Button */}
                                         <div
                                             className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
                                             onClick={sendMessage}
                                         >
-                                            <FontAwesomeIcon
-                                                icon={faArrowUp as IconProp}
-                                                className="text-[20px]"
-                                            />
+                                            <FontAwesomeIcon icon={faArrowUp as IconProp} className="text-[20px]" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
 
                     ) : (
                         // If there are messages, render the chat interface
                         <>
+
                             {/* Conversation Label */}
                             <div className="conversation-label flex flex-row items-center w-full mb-8">
                                 {isEditing ? (
@@ -540,154 +643,221 @@ const Insights = () => {
                             </div>
 
                             {/* Chat Interface */}
-                            <div className="chat-view flex flex-col w-full h-full rounded-[15px] overflow-hidden">
-                                <div className="chatbox flex flex-col w-full h-full rounded-[15px] overflow-hidden">
-                                    {/* Messages */}
-                                    <div className="chat-messages flex-grow flex flex-col items-start w-full h-0 rounded-[15px] overflow-y-scroll py-[10px]" ref={chatMessagesRef}>
-                                        {messages.map((message, index) => (
-                                            <div
-                                                key={index}
-                                                className={`
-                                              chat-message
-                                              ${message.sender === "user"
-                                                        ? "user-message self-end bg-[#e1e1e3]"
-                                                        : "assistant-message justify-start"
-                                                    }
-                                              mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
-                                            `}
-                                            >
-                                                {message.isLoading ? (
-                                                    <div className="flex items-center">
-                                                        <img
-                                                            src="/assets/logosymbol.png"
-                                                            alt="Loading..."
-                                                            className="spinner h-6 w-6 mr-2"
-                                                        />
-                                                        <span className="text-gray-500 text-sm">Thinking...</span>
+                            <div className="chat-messages flex-grow flex flex-col items-start w-full h-0 rounded-[15px] overflow-y-scroll py-[10px]" ref={chatMessagesRef}>
+                                {messages.map((message, index) => (
+                                    <div
+                                        key={index}
+                                        className={`
+                                        chat-message
+                                        ${message.sender === "user"
+                                                                            ? "user-message self-end bg-[#e1e1e3]"
+                                                                            : "assistant-message justify-start"
+                                                                        }
+                                        mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
+                                        `}
+                                    >
+                                        {message.file ? (
+                                            <div className="file-message flex flex-col items-start">
+                                                {/* File Details */}
+                                                <div className="file-info flex items-center mb-2">
+                                                    <FontAwesomeIcon icon={faFile as IconProp} className="text-pink-500 text-[22px] mr-2" />
+                                                    <div>
+                                                        <p className="text-sm font-medium">{message.file.name}</p>
+                                                        <p className="text-xs text-gray-500">{message.file.type || "Unknown Type"}</p>
                                                     </div>
-                                                ) : message.sender === "assistant" ? (
-                                                    <div className="w-full flex items-start">
-                                                        {/* Assistant's Logo */}
-                                                        <img
-                                                            src="/assets/logosymbol.png" // Path to your logo
-                                                            alt="Assistant Logo"
-                                                            className="h-6 w-6 mr-2 " // Adjust height, width, spacing
-                                                        />
-                                                        {/* Assistant's Text */}
-                                                        <div>
-                                                            <p className="m-0 whitespace-pre-wrap">{message.text}</p>
-                                                            <button
-                                                                onClick={() => handleSaveResponse(message.text)}
-                                                                className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
-                                                            >
-                                                                Save
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <p className="m-0 whitespace-pre-wrap w-full">{message.text}</p>
+                                                </div>
+                                                {/* User's Text (if exists) */}
+                                                {message.text && (
+                                                    <p className="m-0 text-sm bg-white p-2 rounded-md shadow-sm">
+                                                        {message.text}
+                                                    </p>
                                                 )}
                                             </div>
-
-                                        ))}
-                                    </div>
-
-                                    {/* Input Area */}
-                                    <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] px-4">
-                                        <textarea
-                                            ref={textareaRef}
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            placeholder="Type a message"
-                                            rows={1}
-                                            className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[15px] text-[15px] resize-none box-border mt-[10px]"
-                                        />
-                                        <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px]">
-                                            <div className="left-button">
-                                                <FontAwesomeIcon
-                                                    icon={faPaperclipVertical as IconProp}
-                                                    className="text-[22px]"
+                                        ) : message.isLoading ? (
+                                            <div className="flex items-center">
+                                                <img
+                                                    src="/assets/logosymbol.png"
+                                                    alt="Loading..."
+                                                    className="spinner h-6 w-6 mr-2"
                                                 />
+                                                <span className="text-gray-500 text-sm">Thinking...</span>
                                             </div>
-                                            <div
-                                                className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
-                                                onClick={sendMessage}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faArrowUp as IconProp}
-                                                    className="text-[20px]"
+                                        ) : message.sender === "assistant" ? (
+                                            <div className="w-full flex items-start">
+                                                {/* Assistant's Logo */}
+                                                <img
+                                                    src="/assets/logosymbol.png" // Path to your logo
+                                                    alt="Assistant Logo"
+                                                    className="h-6 w-6 mr-2"
                                                 />
+                                                {/* Assistant's Text */}
+                                                <div>
+                                                    <p className="m-0 whitespace-pre-wrap">{message.text}</p>
+                                                    <button
+                                                        onClick={() => handleSaveResponse(message.text)}
+                                                        className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p className="m-0 whitespace-pre-wrap w-full">{message.text}</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Input Area */}
+                            <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] px-4 overflow-visible">
+                                {/* Display Uploaded File */}
+                                {uploadedFile && (
+                                    <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2">
+                                        <div className="file-info flex items-center">
+                                            <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
+                                            <div>
+                                                <p className="text-sm font-medium">{uploadedFile.name}</p>
+                                                <p className="text-xs text-gray-500">{uploadedFile.type || "Unknown Type"}</p>
                                             </div>
                                         </div>
+                                        <FontAwesomeIcon
+                                            icon={faTimesCircle}
+                                            className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
+                                            onClick={removeFile}
+                                        />
                                     </div>
+                                )}
+
+                                <textarea
+                                    ref={textareaRef}
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Type a message"
+                                    rows={1}
+                                    className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border"
+                                />
+                                <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px] relative">
+                                    <div className="left-button relative">
+                                        {/* File Upload Input */}
+                                        <input
+                                            type="file"
+                                            id="file-upload"
+                                            className="hidden"
+                                            onChange={handleFileUpload}
+                                        />
+                                        <FontAwesomeIcon
+                                            icon={faPaperclipVertical as IconProp}
+                                            className="text-[22px] cursor-pointer"
+                                            onClick={() => setShowTooltip(!showTooltip)} // Toggle tooltip
+                                        />
+                                    </div>
+
+                                    {/* Tooltip (rendered outside the parent for better positioning) */}
+                                    {showTooltip && (
+                                        <div
+                                            ref={tooltipRef}
+                                            className="absolute bottom-[110%] left-[10px] w-max bg-white border border-gray-300 shadow-lg rounded-md p-2 z-20"
+                                        >
+                                            <button
+                                                className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
+                                                onClick={() => {
+                                                    setShowTooltip(false); // Close tooltip
+                                                    alert("Upload from stored files clicked");
+                                                }}
+                                            >
+                                                Upload from stored files
+                                            </button>
+                                            <button
+                                                className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
+                                                onClick={() => {
+                                                    setShowTooltip(false); // Close tooltip
+                                                    document.getElementById("file-upload")?.click(); // Trigger file input
+                                                }}
+                                            >
+                                                Upload from computer <span className="text-gray-500">(temporary)</span>
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {/* Send Message Button */}
+                                    <div
+                                        className="right-button flex justify-center items-center w-[27px] h-[27px] bg-black text-white rounded-full cursor-pointer"
+                                        onClick={() => {
+                                            console.log("Button clicked");
+                                            sendMessage(); // Ensure function is called
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faArrowUp as IconProp} className="text-[20px]" />
+                                    </div>
+
                                 </div>
                             </div>
 
                         </>
                     )}
 
-                    {/* Modal for listing conversations */}
-                    {isModalOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center">
-                            {/* Overlay */}
-                            <div
-                                className="absolute inset-0 bg-black opacity-50"
-                                onClick={closeModal}
-                            ></div>
-                            {/* Modal content */}
-                            <div className="relative bg-white rounded-lg p-6 z-10 w-[600px] max-h-[80%] overflow-auto">
-                                <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
+            {/* Modal for listing conversations */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Overlay */}
+                    <div
+                        className="absolute inset-0 bg-black opacity-50"
+                        onClick={closeModal}
+                    ></div>
+                    {/* Modal content */}
+                    <div className="relative bg-white rounded-lg p-6 z-10 w-[600px] max-h-[80%] overflow-auto">
+                        <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
 
-                                {conversations.length === 0 ? (
-                                    <p className="text-gray-500">No conversations found</p>
-                                ) : (
-                                    <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
-                                        <thead className="bg-gray-100">
-                                            <tr>
-                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
-                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
-                                                <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">Delete</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {conversations.map((conv) => (
-                                                <tr key={conv._id} className="border-t border-gray-200 hover:bg-gray-50">
-                                                    {/* Hidden Column for conversation_id */}
-                                                    <td
-                                                        className="px-4 py-2 text-sm text-gray-800 cursor-pointer"
-                                                        onClick={() => handleSelectConversation(conv)}
-                                                    >
-                                                        {conv.title || "Untitled Conversation"}
-                                                    </td>
-                                                    <td className="px-4 py-2 text-sm text-gray-600">
-                                                        {new Date(conv.date).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-2 text-center">
-                                                        <FontAwesomeIcon
-                                                            icon={faTrash as IconProp}
-                                                            className="text-red-500 cursor-pointer hover:text-red-700 text[20px]"
-                                                            onClick={() => handleDeleteConversation(conv)}
-                                                        />
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                )}
+                        {conversations.length === 0 ? (
+                            <p className="text-gray-500">No conversations found</p>
+                        ) : (
+                            <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
+                                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
+                                        <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {conversations.map((conv) => (
+                                        <tr key={conv._id} className="border-t border-gray-200 hover:bg-gray-50">
+                                            {/* Hidden Column for conversation_id */}
+                                            <td
+                                                className="px-4 py-2 text-sm text-gray-800 cursor-pointer"
+                                                onClick={() => handleSelectConversation(conv)}
+                                            >
+                                                {conv.title || "Untitled Conversation"}
+                                            </td>
+                                            <td className="px-4 py-2 text-sm text-gray-600">
+                                                {new Date(conv.date).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-4 py-2 text-center">
+                                                <FontAwesomeIcon
+                                                    icon={faTrash as IconProp}
+                                                    className="text-red-500 cursor-pointer hover:text-red-700 text[20px]"
+                                                    onClick={() => handleDeleteConversation(conv)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
 
-                                <button
-                                    className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 focus:outline-none"
-                                    onClick={closeModal}
-                                >
-                                    Close
-                                </button>
-                            </div>
+                        <button
+                            className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 focus:outline-none"
+                            onClick={closeModal}
+                        >
+                            Close
+                        </button>
+                    </div>
 
-                        </div>
-                    )}
                 </div>
-            </div>
+            )}
         </div>
+            </div >
+        </div >
     );
 };
 
