@@ -11,6 +11,7 @@ import { app } from "../index";
 import { faCirclePlus } from "@fortawesome/pro-regular-svg-icons";
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import FileExplorerModal from "./fileexplorermodal";
 import '../css/insights.css';
 
 
@@ -34,6 +35,15 @@ const Insights = () => {
     const [showTooltip, setShowTooltip] = useState(false);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
     const [uploadedFile, setUploadedFile] = useState<File | null>(null); // To store the uploaded file
+    // Additional states for file explorer
+    const [isFileExplorerOpen, setFileExplorerOpen] = useState(false);
+    // Instead of separate `selectedFileID`, store both ID & name
+    const [selectedStoredFile, setSelectedStoredFile] = useState<{
+        fileID: string;
+        filename: string;
+    } | null>(null);
+
+
 
     // Holds the assistant messages that the user “saves”
     const [savedResponses, setSavedResponses] = useState<{ id: number; text: string }[]>([]);
@@ -260,52 +270,69 @@ const Insights = () => {
     const sendMessage = async () => {
         try {
             console.log("Send Message Called");
-    
-            // Validate input or uploaded file
-            if ((!input || !input.trim()) && !uploadedFile) {
-                console.warn("Input is empty and no file uploaded");
+
+            // 1. Validate input or file selection
+            // Check if there's text, or a local file, or a stored file ID
+            if ((!input || !input.trim()) && !uploadedFile && !selectedStoredFile) {
+                console.warn("No text or file provided");
                 return;
             }
-    
-            // Add file and/or text as one combined message
+
             const combinedMessage = {
-                text: input ? input.trim() : "",
+                text: input?.trim() || "",
                 sender: "user",
-                file: uploadedFile ? { name: uploadedFile.name, type: uploadedFile.type } : null,
+                file: uploadedFile
+                    ? { name: uploadedFile.name, type: uploadedFile.type }
+                    : selectedStoredFile
+                        ? { name: selectedStoredFile.filename, type: "stored" }
+                        : null,
             };
+
             setMessages((prev) => [...prev, combinedMessage as Message]);
-    
-            setInput(""); // Clear input
+
+            setInput(""); // Clear text input
             setMessages((prev) => [
                 ...prev,
                 { text: "Loading...", sender: "assistant", isLoading: true },
             ]);
-    
-            // Prepare FormData
+
+            // 3. Build the request
+            //    If there's a local file, do FormData.
+            //    If there's a stored file ID, just pass that as a field in formData.
             const formData = new FormData();
-            if (uploadedFile) formData.append("file", uploadedFile, uploadedFile.name);
-            if (input && input.trim()) formData.append("query", input.trim());
+
+            if (uploadedFile) {
+                formData.append("file", uploadedFile, uploadedFile.name);
+            }
+
+            if (selectedStoredFile) {
+                formData.append("fileID", selectedStoredFile.fileID);
+            }
+
+            // Add text query if it exists
+            if (input && input.trim()) {
+                formData.append("query", input.trim());
+            }
+
+            // Add any other fields your backend expects
             if (firebaseUid) formData.append("firebaseUid", firebaseUid);
             if (threadID) formData.append("threadID", threadID);
             if (title) formData.append("title", title);
 
-            console.log("Firebase UID:", firebaseUid); // Log the UID to verify
-
-    
-            // Send to backend
+            // 4. Send to the backend
             const chatRes = await fetch("http://localhost:10000/api/chat", {
                 method: "POST",
                 body: formData,
             });
-    
+
             if (!chatRes.ok) {
-                const errorText = await chatRes.text(); // Debug backend error
+                const errorText = await chatRes.text();
                 throw new Error(`Server error ${chatRes.status}: ${errorText}`);
             }
-    
+
             const data = await chatRes.json();
-    
-            // Update assistant's response
+
+            // 5. Update assistant's response
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
@@ -313,8 +340,8 @@ const Insights = () => {
                         : msg
                 )
             );
-    
-            // Handle new conversation logic
+
+            // 6. Thread logic, etc.
             if (!threadID && data.threadID) {
                 setThreadID(data.threadID);
                 const generatedTitle = await generateTitleFrontend(input || "");
@@ -323,25 +350,26 @@ const Insights = () => {
                     setTitle(generatedTitle);
                 }
             }
-    
-            // Clear uploaded file
+
+            // 7. Clear both local file & stored fileID
             setUploadedFile(null);
+            setSelectedStoredFile(null);
+
         } catch (error) {
-            if (error instanceof Error) {
-                console.error("Error in sendMessage:", error.message);
-            } else {
-                console.error("Error in sendMessage:", error);
-            }
+            console.error("Error in sendMessage:", error);
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
-                        ? { text: "Something went wrong. Please try again.", sender: "assistant" }
+                        ? {
+                            text: "Something went wrong. Please try again.",
+                            sender: "assistant",
+                        }
                         : msg
                 )
             );
         }
     };
-    
+
 
 
     const generateTitleFrontend = async (query: string): Promise<string | null> => {
@@ -451,6 +479,12 @@ const Insights = () => {
         setUploadedFile(null); // Remove the uploaded file
     };
 
+    const handleFileExplorerSelect = (fileData: { fileID: string; filename: string }) => {
+        console.log("Stored file selected:", fileData);
+        setSelectedStoredFile(fileData);
+    };
+
+
 
     return (
         <div className="flex flex-col w-full h-full ">
@@ -555,6 +589,23 @@ const Insights = () => {
                                 <h2 className="text-black text-3xl font-bold mb-6">What can I help with?</h2>
                                 <p className="text-md"> You can start by choosing a file or asking about a file in the system</p>
                                 <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-visible px-4 mt-[40px]">
+                                    {selectedStoredFile && (
+                                        <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2">
+                                            <div className="file-info flex items-center">
+                                                <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
+                                                <div>
+                                                    {/* Show the filename instead of fileID */}
+                                                    <p className="text-sm font-medium">{selectedStoredFile.filename}</p>
+                                                    <p className="text-xs text-gray-500">ID: {selectedStoredFile.fileID}</p>
+                                                </div>
+                                            </div>
+                                            <FontAwesomeIcon
+                                                icon={faTimesCircle}
+                                                className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
+                                                onClick={() => setSelectedStoredFile(null)}
+                                            />
+                                        </div>
+                                    )}
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
@@ -569,26 +620,8 @@ const Insights = () => {
                                             <FontAwesomeIcon
                                                 icon={faPaperclipVertical as IconProp}
                                                 className="text-[22px] cursor-pointer"
-                                                onClick={() => setShowTooltip(!showTooltip)} // Toggle tooltip
+                                                onClick={() => setFileExplorerOpen(true)}
                                             />
-
-                                            {/* Tooltip */}
-                                            {showTooltip && (
-                                                <div ref={tooltipRef} className="absolute bottom-[110%] left-0 w-max bg-white border border-gray-300 shadow-lg rounded-md p-2 z-20">
-                                                    <button
-                                                        className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
-                                                        onClick={handleUploadFromStoredFiles}
-                                                    >
-                                                        Upload from stored files
-                                                    </button>
-                                                    <button
-                                                        className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
-                                                        onClick={handleUploadFromComputer}
-                                                    >
-                                                        Upload from computer <span className="text-gray-500">(temporary)</span>
-                                                    </button>
-                                                </div>
-                                            )}
                                         </div>
 
                                         {/* Send Message Button */}
@@ -599,6 +632,12 @@ const Insights = () => {
                                             <FontAwesomeIcon icon={faArrowUp as IconProp} className="text-[20px]" />
                                         </div>
                                     </div>
+                                    <FileExplorerModal
+                                        open={isFileExplorerOpen}
+                                        onClose={() => setFileExplorerOpen(false)}
+                                        onFileSelect={handleFileExplorerSelect}
+                                        firebaseUid={firebaseUid}
+                                    />
                                 </div>
                             </div>
 
@@ -650,9 +689,9 @@ const Insights = () => {
                                         className={`
                                         chat-message
                                         ${message.sender === "user"
-                                                                            ? "user-message self-end bg-[#e1e1e3]"
-                                                                            : "assistant-message justify-start"
-                                                                        }
+                                                ? "user-message self-end bg-[#e1e1e3]"
+                                                : "assistant-message justify-start"
+                                            }
                                         mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
                                         `}
                                     >
@@ -663,7 +702,7 @@ const Insights = () => {
                                                     <FontAwesomeIcon icon={faFile as IconProp} className="text-pink-500 text-[22px] mr-2" />
                                                     <div>
                                                         <p className="text-sm font-medium">{message.file.name}</p>
-                                                        <p className="text-xs text-gray-500">{message.file.type || "Unknown Type"}</p>
+                                                       
                                                     </div>
                                                 </div>
                                                 {/* User's Text (if exists) */}
@@ -710,24 +749,30 @@ const Insights = () => {
 
                             {/* Input Area */}
                             <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] px-4 overflow-visible">
-                                {/* Display Uploaded File */}
-                                {uploadedFile && (
-                                    <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2">
-                                        <div className="file-info flex items-center">
-                                            <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
-                                            <div>
-                                                <p className="text-sm font-medium">{uploadedFile.name}</p>
-                                                <p className="text-xs text-gray-500">{uploadedFile.type || "Unknown Type"}</p>
+
+                                {selectedStoredFile && (
+                                    <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 w-1/2 rounded-lg p-3 mb-4 shadow-sm mt-4">
+                                        <div className="file-info flex items-center gap-4">
+                                            <div className="file-icon bg-pink-100 p-3 rounded-full flex items-center justify-center">
+                                                <FontAwesomeIcon
+                                                    icon={faFile}
+                                                    className="text-pink-500 text-[22px]"
+                                                />
+                                            </div>
+                                            <div className="file-details">
+                                                <p className="text-base font-semibold text-gray-800">
+                                                    {selectedStoredFile.filename}
+                                                </p>
+                                                
                                             </div>
                                         </div>
                                         <FontAwesomeIcon
                                             icon={faTimesCircle}
-                                            className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
-                                            onClick={removeFile}
+                                            className="text-gray-400 hover:text-red-500 cursor-pointer text-[22px]"
+                                            onClick={() => setSelectedStoredFile(null)}
                                         />
                                     </div>
                                 )}
-
                                 <textarea
                                     ref={textareaRef}
                                     value={input}
@@ -738,46 +783,13 @@ const Insights = () => {
                                 />
                                 <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px] relative">
                                     <div className="left-button relative">
-                                        {/* File Upload Input */}
-                                        <input
-                                            type="file"
-                                            id="file-upload"
-                                            className="hidden"
-                                            onChange={handleFileUpload}
-                                        />
+
                                         <FontAwesomeIcon
                                             icon={faPaperclipVertical as IconProp}
                                             className="text-[22px] cursor-pointer"
-                                            onClick={() => setShowTooltip(!showTooltip)} // Toggle tooltip
+                                            onClick={() => setFileExplorerOpen(true)}
                                         />
                                     </div>
-
-                                    {/* Tooltip (rendered outside the parent for better positioning) */}
-                                    {showTooltip && (
-                                        <div
-                                            ref={tooltipRef}
-                                            className="absolute bottom-[110%] left-[10px] w-max bg-white border border-gray-300 shadow-lg rounded-md p-2 z-20"
-                                        >
-                                            <button
-                                                className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
-                                                onClick={() => {
-                                                    setShowTooltip(false); // Close tooltip
-                                                    alert("Upload from stored files clicked");
-                                                }}
-                                            >
-                                                Upload from stored files
-                                            </button>
-                                            <button
-                                                className="block text-left w-full px-4 py-2 text-sm hover:bg-gray-100"
-                                                onClick={() => {
-                                                    setShowTooltip(false); // Close tooltip
-                                                    document.getElementById("file-upload")?.click(); // Trigger file input
-                                                }}
-                                            >
-                                                Upload from computer <span className="text-gray-500">(temporary)</span>
-                                            </button>
-                                        </div>
-                                    )}
 
                                     {/* Send Message Button */}
                                     <div
@@ -792,70 +804,76 @@ const Insights = () => {
 
                                 </div>
                             </div>
+                            <FileExplorerModal
+                                open={isFileExplorerOpen}
+                                onClose={() => setFileExplorerOpen(false)}
+                                onFileSelect={handleFileExplorerSelect}
+                                firebaseUid={firebaseUid}
+                            />
 
                         </>
                     )}
 
-            {/* Modal for listing conversations */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Overlay */}
-                    <div
-                        className="absolute inset-0 bg-black opacity-50"
-                        onClick={closeModal}
-                    ></div>
-                    {/* Modal content */}
-                    <div className="relative bg-white rounded-lg p-6 z-10 w-[600px] max-h-[80%] overflow-auto">
-                        <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
+                    {/* Modal for listing conversations */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center">
+                            {/* Overlay */}
+                            <div
+                                className="absolute inset-0 bg-black opacity-50"
+                                onClick={closeModal}
+                            ></div>
+                            {/* Modal content */}
+                            <div className="relative bg-white rounded-lg p-6 z-10 w-[600px] max-h-[80%] overflow-auto">
+                                <h2 className="text-xl font-semibold mb-4">Your Conversations</h2>
 
-                        {conversations.length === 0 ? (
-                            <p className="text-gray-500">No conversations found</p>
-                        ) : (
-                            <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
-                                <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
-                                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
-                                        <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">Delete</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {conversations.map((conv) => (
-                                        <tr key={conv._id} className="border-t border-gray-200 hover:bg-gray-50">
-                                            {/* Hidden Column for conversation_id */}
-                                            <td
-                                                className="px-4 py-2 text-sm text-gray-800 cursor-pointer"
-                                                onClick={() => handleSelectConversation(conv)}
-                                            >
-                                                {conv.title || "Untitled Conversation"}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-gray-600">
-                                                {new Date(conv.date).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-4 py-2 text-center">
-                                                <FontAwesomeIcon
-                                                    icon={faTrash as IconProp}
-                                                    className="text-red-500 cursor-pointer hover:text-red-700 text[20px]"
-                                                    onClick={() => handleDeleteConversation(conv)}
-                                                />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
+                                {conversations.length === 0 ? (
+                                    <p className="text-gray-500">No conversations found</p>
+                                ) : (
+                                    <table className="table-auto w-full border-collapse border border-gray-300 rounded-lg">
+                                        <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Title</th>
+                                                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
+                                                <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {conversations.map((conv) => (
+                                                <tr key={conv._id} className="border-t border-gray-200 hover:bg-gray-50">
+                                                    {/* Hidden Column for conversation_id */}
+                                                    <td
+                                                        className="px-4 py-2 text-sm text-gray-800 cursor-pointer"
+                                                        onClick={() => handleSelectConversation(conv)}
+                                                    >
+                                                        {conv.title || "Untitled Conversation"}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-sm text-gray-600">
+                                                        {new Date(conv.date).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-center">
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash as IconProp}
+                                                            className="text-red-500 cursor-pointer hover:text-red-700 text[20px]"
+                                                            onClick={() => handleDeleteConversation(conv)}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
 
-                        <button
-                            className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 focus:outline-none"
-                            onClick={closeModal}
-                        >
-                            Close
-                        </button>
-                    </div>
+                                <button
+                                    className="mt-4 bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 focus:outline-none"
+                                    onClick={closeModal}
+                                >
+                                    Close
+                                </button>
+                            </div>
 
+                        </div>
+                    )}
                 </div>
-            )}
-        </div>
             </div >
         </div >
     );
