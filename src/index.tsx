@@ -11,6 +11,9 @@ import LandingPage from './landingpage';
 import Pricing from './pricing';
 import Blog from './blog';
 import BlogPost from './blogpost';
+import { store } from './redux/store';
+import { Provider } from 'react-redux'
+
 
 
 const firebaseConfig = {
@@ -30,19 +33,23 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <Router>
-    <Routes>
-      <Route path="/" element={< LandingPage />} />
-      <Route path="/pricing" element={< Pricing />} />
-      <Route path="/blog" element={< Blog />} />
-      <Route path="/blogpost/:slug" element={<BlogPost />} />
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/dashboard" element= {
+
+
+<Provider store={store}>
+<Router>
+  <Routes>
+    <Route path="/" element={<LandingPage />} />
+    <Route path="/pricing" element={<Pricing />} />
+    <Route path="/blog" element={<Blog />} />
+    <Route path="/blog/:slug" element={<BlogPost />} />
+    <Route path="/signin" element={<SignIn />} />
+    <Route path="/signup" element={<SignUp />} />
+    <Route path="/dashboard" element= {
         <ProtectedRoute element={<Dashboard />} />
       } />
-    </Routes>
-  </Router>
+  </Routes>
+</Router>
+</Provider>
 );
 
 export default app;

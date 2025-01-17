@@ -12,6 +12,7 @@ import { faCirclePlus } from "@fortawesome/pro-regular-svg-icons";
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import FileExplorerModal from "./fileexplorermodal";
+import InsightsToggle from "./insightstoggle";
 import '../css/insights.css';
 
 
@@ -489,35 +490,7 @@ const Insights = () => {
     return (
         <div className="flex flex-col w-full h-full ">
             <div className=" flex flex-row w-full ">
-                <div className=" flex flex-row w-[46%] relative  h-[64px] ">
-                    <ToggleButtonGroup
-                        value={insightsSection}
-                        exclusive
-                        onChange={handleInsightSection}
-                        aria-label="insights section"
-                        className="mb-4 absolute top-4 left-4"
-                    >
-                        <ToggleButton
-                            value="quick"
-                            aria-label="web insights"
-                            classes={{
-                                root: 'py-2 px-4 text-sm md:py-3 md:px-6 md:text-base lg:py-2 lg:px-8 lg:text-lg',
-                            }}
-                        >
-                            Quick Insights
-                        </ToggleButton>
-                        <ToggleButton
-                            value="chat"
-                            aria-label="saved insights"
-                            classes={{
-                                root: 'py-2 px-4 text-sm md:py-3 md:px-6 md:text-base lg:py-4 lg:px-8 lg:text-lg',
-                            }}
-                        >
-                            Data Chat
-                        </ToggleButton>
-                    </ToggleButtonGroup>
-                </div>
-
+                <InsightsToggle  />
                 <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] relative ">
                     {/* New Conversation Icon */}
                     {messages.length > 0 && (

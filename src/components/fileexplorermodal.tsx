@@ -14,21 +14,18 @@ import {
   GridCellParams,
 } from '@mui/x-data-grid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// If you do not have pro icons installed, swap to free icons, e.g.:
-// import { faCheck, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faCheck, faMagnifyingGlass } from '@fortawesome/pro-light-svg-icons';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import Fuse from 'fuse.js';
 
-/** Adjust this interface to match your backend data structure */
+
 interface FileRow {
-  fileID: string;       // Unique identifier
-  filename: string;     // Filename
-  created_at?: number;  // Unix timestamp or similar
-  // ... any other fields
+  fileID: string;      
+  filename: string;    
+  created_at?: number;  
+
 }
 
-/** The shape of what you return to the parent component */
 interface FileData {
   fileID: string;
   filename: string;
@@ -38,15 +35,11 @@ interface FileData {
 interface FileExplorerModalProps {
   open: boolean;
   onClose: () => void;
-  onFileSelect: (fileData: FileData) => void;  // Callback returns object with ID + name
-  firebaseUid?: string;                        // If needed to fetch user-specific files
+  onFileSelect: (fileData: FileData) => void;  
+  firebaseUid?: string;                       
 }
 
-/**
- * A reusable file-explorer modal that fetches files on open,
- * supports local (filename) search via Fuse.js,
- * and returns the selected file's ID & filename.
- */
+
 const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
   open,
   onClose,

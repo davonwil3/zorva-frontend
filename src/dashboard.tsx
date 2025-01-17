@@ -9,7 +9,7 @@ import { faQuestion } from "@fortawesome/pro-light-svg-icons";
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faLightbulbOn } from '@fortawesome/pro-light-svg-icons';
 import DataSets from "./components/datasets";
-import Insights from "./components/insights";
+import InsightsStaging from "./components/insightsstaging";
 import { Link } from "react-router-dom";
 import './index.css'
 
@@ -93,7 +93,7 @@ function Dashboard() {
                 <div className="flex flex-col justify-start items-center h-full w-full bg-white self-start min-h-[812px] min-w-[230px]">
                     {currentView === 'upload' && <Upload />}
                     {currentView === 'datasets' && <DataSets />}
-                    {currentView === 'insights' && <Insights />}
+                    {currentView === 'insights' && <InsightsStaging />}
                 </div>
             </div>
         </div >
