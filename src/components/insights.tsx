@@ -19,10 +19,13 @@ import '../css/insights.css';
 const Insights = () => {
     type Message = {
         text: string;
-        sender: "user" | "assistant"; // Possible sender types
-        isLoading?: boolean; // Optional property for loading messages
-        file?: { name: string; type: string }; // Optional property for uploaded
+        sender: "user" | "assistant";
+        isLoading?: boolean;
+        files?: { name: string; type: string }[];
+        filenames?: string[];  // NEW: array of string filenames
     };
+
+
     const chatMessagesRef = useRef<HTMLDivElement>(null);
 
 
@@ -39,10 +42,9 @@ const Insights = () => {
     // Additional states for file explorer
     const [isFileExplorerOpen, setFileExplorerOpen] = useState(false);
     // Instead of separate `selectedFileID`, store both ID & name
-    const [selectedStoredFile, setSelectedStoredFile] = useState<{
-        fileID: string;
-        filename: string;
-    } | null>(null);
+    const [selectedStoredFiles, setSelectedStoredFiles] = useState<
+        { fileID: string; filename: string }[]
+    >([]);
 
 
 
@@ -250,17 +252,18 @@ const Insights = () => {
             const data = await response.json();
 
             const loadedMessages = data.messages
-                .reverse()
                 .filter((msg: any) => msg.text.trim() !== "" || msg.sender.trim() !== "")
                 .map((msg: any) => {
                     const sender = msg.sender === "user" ? "user" : "assistant";
                     return {
                         text: msg.text,
                         sender,
+                        filenames: msg.filenames || [],
                     };
                 });
 
             setMessages(loadedMessages);
+
         } catch (error) {
             console.error("Error fetching conversation messages:", error);
         }
@@ -273,52 +276,55 @@ const Insights = () => {
             console.log("Send Message Called");
 
             // 1. Validate input or file selection
-            // Check if there's text, or a local file, or a stored file ID
-            if ((!input || !input.trim()) && !uploadedFile && !selectedStoredFile) {
+            if ((!input || !input.trim()) && !uploadedFile && selectedStoredFiles.length === 0) {
                 console.warn("No text or file provided");
                 return;
             }
 
+            // Store the original user text before we clear it
+            const textInput = input?.trim() || "";
+
             const combinedMessage = {
-                text: input?.trim() || "",
+                text: textInput,
                 sender: "user",
-                file: uploadedFile
-                    ? { name: uploadedFile.name, type: uploadedFile.type }
-                    : selectedStoredFile
-                        ? { name: selectedStoredFile.filename, type: "stored" }
-                        : null,
+                files: selectedStoredFiles.map((file) => ({ name: file.filename, type: "stored" })),
             };
 
+            // 2. Add user's message to state
             setMessages((prev) => [...prev, combinedMessage as Message]);
+            // Clear the text input
+            setInput("");
 
-            setInput(""); // Clear text input
+            // Add a "Loading..." placeholder from the assistant
             setMessages((prev) => [
                 ...prev,
                 { text: "Loading...", sender: "assistant", isLoading: true },
             ]);
 
             // 3. Build the request
-            //    If there's a local file, do FormData.
-            //    If there's a stored file ID, just pass that as a field in formData.
             const formData = new FormData();
 
             if (uploadedFile) {
                 formData.append("file", uploadedFile, uploadedFile.name);
             }
 
-            if (selectedStoredFile) {
-                formData.append("fileID", selectedStoredFile.fileID);
-            }
+            selectedStoredFiles.forEach((file) => {
+                formData.append("fileIDs[]", file.fileID); // Send all selected file IDs
+            });
 
             // Add text query if it exists
-            if (input && input.trim()) {
-                formData.append("query", input.trim());
+            if (textInput) {
+                formData.append("query", textInput);
             }
 
-            // Add any other fields your backend expects
             if (firebaseUid) formData.append("firebaseUid", firebaseUid);
             if (threadID) formData.append("threadID", threadID);
             if (title) formData.append("title", title);
+
+            const filenames = selectedStoredFiles.map((file) => ({ name: file.filename }));
+            if (selectedStoredFiles) {
+                formData.append("filenames", JSON.stringify(filenames));
+            }
 
             // 4. Send to the backend
             const chatRes = await fetch("http://localhost:10000/api/chat", {
@@ -333,7 +339,7 @@ const Insights = () => {
 
             const data = await chatRes.json();
 
-            // 5. Update assistant's response
+            // 5. Update assistant's response (remove the isLoading message)
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
@@ -342,35 +348,37 @@ const Insights = () => {
                 )
             );
 
-            // 6. Thread logic, etc.
+            // 6. If we **did not** have a threadID before, but now the server returned one:
             if (!threadID && data.threadID) {
+                // Update local state with the new threadID
                 setThreadID(data.threadID);
-                const generatedTitle = await generateTitleFrontend(input || "");
+
+                // Generate a title based on the original input
+                const generatedTitle = await generateTitleFrontend(data.response);
+
+                // If the generation succeeded, save that title to the backend and update local state
                 if (generatedTitle) {
                     await saveTitleFrontend(data.threadID, generatedTitle);
                     setTitle(generatedTitle);
                 }
             }
 
-            // 7. Clear both local file & stored fileID
+            // 7. Clear the locally stored files
             setUploadedFile(null);
-            setSelectedStoredFile(null);
+            setSelectedStoredFiles([]);
 
         } catch (error) {
             console.error("Error in sendMessage:", error);
+            // If an error occurs, replace the loading message with a generic error message
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
-                        ? {
-                            text: "Something went wrong. Please try again.",
-                            sender: "assistant",
-                        }
+                        ? { text: "Something went wrong. Please try again.", sender: "assistant" }
                         : msg
                 )
             );
         }
     };
-
 
 
     const generateTitleFrontend = async (query: string): Promise<string | null> => {
@@ -457,32 +465,15 @@ const Insights = () => {
         setSavedResponses([]);
     };
 
-    // --------------  Upload from stored files --------------
-    const handleUploadFromStoredFiles = () => {
-        console.log("Uploading from stored files");
-    };
 
-    // --------------  Upload from computer --------------
-    const handleUploadFromComputer = () => {
-        console.log("Uploading from computer");
-    };
-
-    // --------------  Handle file upload --------------
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files[0]) {
-            setUploadedFile(event.target.files[0]); // Store uploaded file
-            setShowTooltip(false); // Close the tooltip after file upload
-        }
-    };
-
-
-    const removeFile = () => {
-        setUploadedFile(null); // Remove the uploaded file
-    };
-
-    const handleFileExplorerSelect = (fileData: { fileID: string; filename: string }) => {
-        console.log("Stored file selected:", fileData);
-        setSelectedStoredFile(fileData);
+    const handleFileExplorerSelect = (fileData: { fileID: string; filename: string }[]) => {
+        console.log("Stored files selected:", fileData);
+        setSelectedStoredFiles((prev) => {
+            const newFiles = fileData.filter(
+                (newFile) => !prev.some((file) => file.fileID === newFile.fileID)
+            );
+            return [...prev, ...newFiles];
+        });
     };
 
 
@@ -490,7 +481,7 @@ const Insights = () => {
     return (
         <div className="flex flex-col w-full h-full ">
             <div className=" flex flex-row w-full ">
-                <InsightsToggle  />
+                <InsightsToggle />
                 <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] relative ">
                     {/* New Conversation Icon */}
                     {messages.length > 0 && (
@@ -562,23 +553,33 @@ const Insights = () => {
                                 <h2 className="text-black text-3xl font-bold mb-6">What can I help with?</h2>
                                 <p className="text-md"> You can start by choosing a file or asking about a file in the system</p>
                                 <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-visible px-4 mt-[40px]">
-                                    {selectedStoredFile && (
-                                        <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2">
-                                            <div className="file-info flex items-center">
-                                                <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
-                                                <div>
-                                                    {/* Show the filename instead of fileID */}
-                                                    <p className="text-sm font-medium">{selectedStoredFile.filename}</p>
-                                                    <p className="text-xs text-gray-500">ID: {selectedStoredFile.fileID}</p>
+                                    {selectedStoredFiles.length > 0 && (
+                                        <div className="uploaded-files-container">
+                                            {selectedStoredFiles.map((file) => (
+                                                <div
+                                                    key={file.fileID}
+                                                    className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2"
+                                                >
+                                                    <div className="file-info flex items-center">
+                                                        <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
+                                                        <div>
+                                                            <p className="text-sm font-medium">{file.filename}</p>
+                                                        </div>
+                                                    </div>
+                                                    <FontAwesomeIcon
+                                                        icon={faTimesCircle}
+                                                        className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
+                                                        onClick={() =>
+                                                            setSelectedStoredFiles((prev) =>
+                                                                prev.filter((selectedFile) => selectedFile.fileID !== file.fileID)
+                                                            )
+                                                        }
+                                                    />
                                                 </div>
-                                            </div>
-                                            <FontAwesomeIcon
-                                                icon={faTimesCircle}
-                                                className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
-                                                onClick={() => setSelectedStoredFile(null)}
-                                            />
+                                            ))}
                                         </div>
                                     )}
+
                                     <textarea
                                         ref={textareaRef}
                                         value={input}
@@ -655,36 +656,71 @@ const Insights = () => {
                             </div>
 
                             {/* Chat Interface */}
-                            <div className="chat-messages flex-grow flex flex-col items-start w-full h-0 rounded-[15px] overflow-y-scroll py-[10px]" ref={chatMessagesRef}>
+                            <div
+                                className="chat-messages flex-grow flex flex-col items-start w-full h-0 rounded-[15px] overflow-y-scroll py-[10px]"
+                                ref={chatMessagesRef}
+                            >
                                 {messages.map((message, index) => (
                                     <div
                                         key={index}
                                         className={`
                                         chat-message
                                         ${message.sender === "user"
-                                                ? "user-message self-end bg-[#e1e1e3]"
-                                                : "assistant-message justify-start"
-                                            }
+                                        ? "user-message self-end bg-[#e1e1e3]"
+                                        : "assistant-message justify-start"
+                                    }
                                         mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
                                         `}
                                     >
-                                        {message.file ? (
+                                        {/** * 1) If the message has a `files` array, render it. */}
+                                        {message.files && message.files.length > 0 ? (
                                             <div className="file-message flex flex-col items-start">
-                                                {/* File Details */}
-                                                <div className="file-info flex items-center mb-2">
-                                                    <FontAwesomeIcon icon={faFile as IconProp} className="text-pink-500 text-[22px] mr-2" />
-                                                    <div>
-                                                        <p className="text-sm font-medium">{message.file.name}</p>
-                                                       
+                                                {message.files.map((file, idx) => (
+                                                    <div key={idx} className="file-info flex items-center mb-2">
+                                                        <FontAwesomeIcon
+                                                            icon={faFile as IconProp}
+                                                            className="text-pink-500 text-[22px] mr-2"
+                                                        />
+                                                        <div>
+                                                            <p className="text-sm font-medium">{file.name}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                {/* User's Text (if exists) */}
+                                                ))}
+                                                {/* Show text if there's also text in this message */}
                                                 {message.text && (
                                                     <p className="m-0 text-sm bg-white p-2 rounded-md shadow-sm">
                                                         {message.text}
                                                     </p>
                                                 )}
                                             </div>
+
+                                            /**
+                                             * 2) If there's a `filenames` array, render each one.
+                                             */
+                                        ) : message.filenames && message.filenames.length > 0 ? (
+                                            <div className="file-message flex flex-col items-start">
+                                                {message.filenames.map((filename, idx) => (
+                                                    <div key={idx} className="file-info flex items-center mb-2">
+                                                        <FontAwesomeIcon
+                                                            icon={faFile as IconProp}
+                                                            className="text-pink-500 text-[22px] mr-2"
+                                                        />
+                                                        <div>
+                                                            <p className="text-sm font-medium">{filename}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {/* If there's text in addition to these filenames */}
+                                                {message.text && (
+                                                    <p className="m-0 text-sm bg-white p-2 rounded-md shadow-sm">
+                                                        {message.text}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            /**
+                                             * 3) Show the loading spinner if `isLoading`
+                                             */
                                         ) : message.isLoading ? (
                                             <div className="flex items-center">
                                                 <img
@@ -694,15 +730,17 @@ const Insights = () => {
                                                 />
                                                 <span className="text-gray-500 text-sm">Thinking...</span>
                                             </div>
+
+                                            /**
+                                             * 4) If `sender` is assistant, show assistant bubble
+                                             */
                                         ) : message.sender === "assistant" ? (
                                             <div className="w-full flex items-start">
-                                                {/* Assistant's Logo */}
                                                 <img
-                                                    src="/assets/logosymbol.png" // Path to your logo
+                                                    src="/assets/logosymbol.png"
                                                     alt="Assistant Logo"
                                                     className="h-6 w-6 mr-2"
                                                 />
-                                                {/* Assistant's Text */}
                                                 <div>
                                                     <p className="m-0 whitespace-pre-wrap">{message.text}</p>
                                                     <button
@@ -713,6 +751,10 @@ const Insights = () => {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            /**
+                                             * 5) Otherwise, it's a standard user text message
+                                             */
                                         ) : (
                                             <p className="m-0 whitespace-pre-wrap w-full">{message.text}</p>
                                         )}
@@ -720,32 +762,38 @@ const Insights = () => {
                                 ))}
                             </div>
 
+
+
                             {/* Input Area */}
                             <div className="input-container flex flex-col w-full bg-[#e9e9ed] rounded-[15px] px-4 overflow-visible">
 
-                                {selectedStoredFile && (
-                                    <div className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 w-1/2 rounded-lg p-3 mb-4 shadow-sm mt-4">
-                                        <div className="file-info flex items-center gap-4">
-                                            <div className="file-icon bg-pink-100 p-3 rounded-full flex items-center justify-center">
+                                {selectedStoredFiles.length > 0 && (
+                                    <div className="uploaded-files-container pt-4">
+                                        {selectedStoredFiles.map((file) => (
+                                            <div
+                                                key={file.fileID}
+                                                className="uploaded-file-container flex items-center justify-between bg-gray-100 border border-gray-300 rounded-md p-2 mb-2"
+                                            >
+                                                <div className="file-info flex items-center">
+                                                    <FontAwesomeIcon icon={faFile} className="text-pink-500 text-[22px] mr-2" />
+                                                    <div>
+                                                        <p className="text-sm font-medium">{file.filename}</p>
+                                                    </div>
+                                                </div>
                                                 <FontAwesomeIcon
-                                                    icon={faFile}
-                                                    className="text-pink-500 text-[22px]"
+                                                    icon={faTimesCircle}
+                                                    className="text-gray-500 hover:text-red-500 cursor-pointer text-[18px]"
+                                                    onClick={() =>
+                                                        setSelectedStoredFiles((prev) =>
+                                                            prev.filter((selectedFile) => selectedFile.fileID !== file.fileID)
+                                                        )
+                                                    }
                                                 />
                                             </div>
-                                            <div className="file-details">
-                                                <p className="text-base font-semibold text-gray-800">
-                                                    {selectedStoredFile.filename}
-                                                </p>
-                                                
-                                            </div>
-                                        </div>
-                                        <FontAwesomeIcon
-                                            icon={faTimesCircle}
-                                            className="text-gray-400 hover:text-red-500 cursor-pointer text-[22px]"
-                                            onClick={() => setSelectedStoredFile(null)}
-                                        />
+                                        ))}
                                     </div>
                                 )}
+
                                 <textarea
                                     ref={textareaRef}
                                     value={input}

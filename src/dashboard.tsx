@@ -22,18 +22,20 @@ function Dashboard() {
 
     return (
         <div className="">
-            <div className="flex flex-row w-full h-screen min-h-[812px]" >
-                <div className="flex flex-col items-center h-screen w-[16%] min-h-[812px]  min-w-[220px] bg-[#F9F9F9] relative py-[5px]">
-                    <div className="flex items-center w-full h-[10%] px-[20px]">
-                        <Link to="/" className="flex items-center space-x-2 lg:space-x-1 cursor-pointer">
-                            <img
-                                src="/assets/logosymbol.png"
-                                alt="Logo image"
-                                className="w-8 h-8 lg:w-[50px] lg:h-[50px]"
-                            />
-                            <p className="text-2xl font-semibold lg:text-2xl">Zorva</p>
-                        </Link>
-                    </div>
+  <div className="flex flex-row w-full h-screen min-h-[812px]">
+    {/* Sidebar Menu */}
+    <div className="menu flex flex-col items-center h-screen w-[16%] min-w-[220px] bg-[#F9F9F9] fixed top-0 left-0 py-[5px] min-h-[812px]">
+      {/* Logo Section */}
+      <div className="flex items-center w-full h-[10%] px-[20px]">
+        <Link to="/" className="flex items-center space-x-2 lg:space-x-1 cursor-pointer">
+          <img
+            src="/assets/logosymbol.png"
+            alt="Logo image"
+            className="w-8 h-8 lg:w-[50px] lg:h-[50px]"
+          />
+          <p className="text-2xl font-semibold lg:text-2xl">Zorva</p>
+        </Link>
+      </div>
 
 
                     {/* Dashboard */}
@@ -90,7 +92,7 @@ function Dashboard() {
                         <p className="text-[13px] text-[#0C2F4A] text-center mt-[6.5px] font-light group-hover:text-[#0C2F4A]">Help</p>
                     </div>
                 </div>
-                <div className="flex flex-col justify-start items-center h-full w-full bg-white self-start min-h-[812px] min-w-[230px]">
+                <div className="flex flex-col justify-start items-center w-full bg-white ml-[16%] min-h-[812px]">
                     {currentView === 'upload' && <Upload />}
                     {currentView === 'datasets' && <DataSets />}
                     {currentView === 'insights' && <InsightsStaging />}

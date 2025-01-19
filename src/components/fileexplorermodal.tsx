@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,39 +6,30 @@ import {
   DialogActions,
   Button,
   Box,
-} from '@mui/material';
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridRowParams,
   GridCellParams,
-} from '@mui/x-data-grid';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faMagnifyingGlass } from '@fortawesome/pro-light-svg-icons';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import Fuse from 'fuse.js';
-
+} from "@mui/x-data-grid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/pro-light-svg-icons";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import Fuse from "fuse.js";
 
 interface FileRow {
-  fileID: string;      
-  filename: string;    
-  created_at?: number;  
-
-}
-
-interface FileData {
   fileID: string;
   filename: string;
+  created_at?: number;
 }
 
-/** Props passed down to this modal */
 interface FileExplorerModalProps {
   open: boolean;
   onClose: () => void;
-  onFileSelect: (fileData: FileData) => void;  
-  firebaseUid?: string;                       
+  onFileSelect: (fileData: { fileID: string; filename: string }[]) => void;
+  firebaseUid?: string;
 }
-
 
 const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
   open,
@@ -48,20 +39,21 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
 }) => {
   const [files, setFiles] = useState<FileRow[]>([]);
   const [searchResults, setSearchResults] = useState<FileRow[]>([]);
+  const [selectedFile, setSelectedFile] = useState<FileRow | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Fetch files whenever the modal opens
   useEffect(() => {
     const fetchFiles = async () => {
-      if (!open) return;  // Only fetch when modal is open
+      if (!open) return;
       setLoading(true);
 
       try {
         const response = await fetch("http://localhost:10000/api/getfiles", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ firebaseUid }), // Adjust if your API requires something else
+          body: JSON.stringify({ firebaseUid }),
         });
 
         if (!response.ok) {
@@ -70,7 +62,6 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
         }
 
         const data = await response.json();
-        // Map data to FileRow structure
         const fetchedFiles: FileRow[] = data.files.map((file: any) => ({
           fileID: file.id,
           filename: file.filename ?? "Untitled",
@@ -78,7 +69,7 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
         }));
 
         setFiles(fetchedFiles);
-        setSearchResults(fetchedFiles); // Initialize search results with all files
+        setSearchResults(fetchedFiles);
       } catch (error) {
         console.error("Error fetching files:", error);
       } finally {
@@ -89,32 +80,22 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
     fetchFiles();
   }, [open, firebaseUid]);
 
-  // Local search with Fuse.js on `filename`
+  // Local search with Fuse.js
   useEffect(() => {
     if (!searchQuery.trim()) {
-      // If no search query, revert to original full list
       setSearchResults(files);
       return;
     }
 
     const fuse = new Fuse(files, {
-      keys: ["filename"], // Search by filename
-      threshold: 0.4,     // Fuzzy match tolerance
+      keys: ["filename"],
+      threshold: 0.4,
     });
 
     const fuseResults = fuse.search(searchQuery);
     const matchedFiles = fuseResults.map((result) => result.item);
     setSearchResults(matchedFiles);
   }, [searchQuery, files]);
-
-  // Handle double-click on a row
-  const handleRowDoubleClick = (params: GridRowParams<FileRow>) => {
-    onFileSelect({
-      fileID: params.row.fileID,
-      filename: params.row.filename,
-    });
-    onClose();
-  };
 
   // Define DataGrid columns
   const columns: GridColDef<FileRow>[] = [
@@ -133,26 +114,22 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
         return dateObj.toLocaleString();
       },
     },
-    {
-      field: "choose",
-      headerName: "Choose",
-      width: 80,
-      sortable: false,
-      renderCell: (params: GridCellParams<FileRow>) => (
-        <FontAwesomeIcon
-          icon={faCheck as IconProp}
-          style={{ cursor: "pointer", color: "green" }}
-          onClick={() => {
-            onFileSelect({
-              fileID: params.row.fileID,
-              filename: params.row.filename,
-            });
-            onClose();
-          }}
-        />
-      ),
-    },
   ];
+
+  // Handle file row click to select a file
+  const handleRowClick = (params: GridRowParams<FileRow>) => {
+    setSelectedFile(params.row);
+  };
+
+  // Handle selecting a file
+  const handleSelect = () => {
+    if (selectedFile) {
+      onFileSelect([{ fileID: selectedFile.fileID, filename: selectedFile.filename }]);
+      onClose();
+    } else {
+      alert("Please select a file.");
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -188,7 +165,7 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
             columns={columns}
             loading={loading}
             getRowId={(row) => row.fileID}
-            onRowDoubleClick={handleRowDoubleClick}
+            onRowClick={handleRowClick}
             disableRowSelectionOnClick
             pageSizeOptions={[5, 10]}
           />
@@ -199,9 +176,13 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
         <Button onClick={onClose} color="secondary">
           Cancel
         </Button>
+        <Button onClick={handleSelect} variant="contained" color="primary">
+          Select
+        </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
 export default FileExplorerModal;
+

@@ -79,38 +79,68 @@ export default function Modal(props: any) {
                     console.log("Fetched JSON content:", jsonData);
                     setJsonContent(jsonData);
                     setContentType("json");
-                } else if (csvOrExcelExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
-                    // Handle CSV or Excel files
-                    console.log("Handling CSV/Excel file:", filename);
-                    const arrayBuffer = await (await fetch(fileUrl)).arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-                    console.log("Parsed sheet data:", sheetData);
-
-                    if (sheetData.length > 0) {
-                        const columns = Object.keys(sheetData[0] as object).map((key) => ({
-                            field: key,
-                            headerName: key.toUpperCase(),
+                } else if (filename.toLowerCase().endsWith(".csv")) {
+                    // Handle CSV files using the grid
+                    console.log("Handling CSV file:", filename);
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch CSV file.");
+                    }
+                    const textData = await response.text();
+                    const rows = textData.split("\n").map((row) => row.split(","));
+                    const headers = rows[0];
+                    const rowData = rows.slice(1).map((row) =>
+                        headers.reduce(
+                            (acc, header, index) => ({
+                                ...acc,
+                                [header]: row[index],
+                            }),
+                            {}
+                        )
+                    );
+                
+                    console.log("Parsed CSV data:", rowData);
+                
+                    if (rowData.length > 0) {
+                        const columns = headers.map((header) => ({
+                            field: header,
+                            headerName: header.toUpperCase(),
                             sortable: true,
                             filter: true,
                             resizable: true,
                         }));
                         setColumnDefs(columns);
-                        setRowData(sheetData);
+                        setRowData(rowData);
                         setContentType("grid");
                     } else {
-                        setError("The file is empty.");
+                        setError("The CSV file is empty.");
                     }
-                } else if (pdfExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                } else if (
+                    filename.toLowerCase().endsWith(".xls") ||
+                    filename.toLowerCase().endsWith(".xlsx")
+                ) {
+                    // Handle Excel files using Microsoft Viewer
+                    console.log("Handling Excel file with Microsoft Viewer:", filename);
+                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+                        fileUrl
+                    )}`;
+                    console.log("Microsoft Viewer URL for Excel:", viewerUrl);
+                    setMicrosoftViewerUrl(viewerUrl);
+                    setContentType("microsoftViewer");
+                } else if (
+                    pdfExtensions.some((ext) => filename.toLowerCase().endsWith(ext))
+                ) {
                     // Handle PDF files using PDFViewer
                     console.log("Handling PDF file:", filename);
                     setContentType("pdf");
-                } else if (microsoftViewerExtensions.some((ext) => filename.toLowerCase().endsWith(ext))) {
+                } else if (
+                    microsoftViewerExtensions.some((ext) => filename.toLowerCase().endsWith(ext))
+                ) {
                     // Handle files viewable by Microsoft Office Online Viewer
                     console.log("Handling Microsoft Viewer for file:", filename);
-                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+                    const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+                        fileUrl
+                    )}`;
                     console.log("Microsoft Viewer URL:", viewerUrl);
                     setMicrosoftViewerUrl(viewerUrl);
                     setContentType("microsoftViewer");
@@ -118,7 +148,8 @@ export default function Modal(props: any) {
                     // Unsupported file type
                     console.log("Unsupported file type:", filename);
                     setError("Unsupported file type.");
-                }
+                }                
+                
             } else {
                 setError("No files found.");
             }
