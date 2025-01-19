@@ -554,7 +554,7 @@ const Insights = () => {
                                 <p className="text-md"> You can start by choosing a file or asking about a file in the system</p>
                                 <div className="mb-60 flex flex-col w-full bg-[#e9e9ed] rounded-[15px] overflow-visible px-4 mt-[40px]">
                                     {selectedStoredFiles.length > 0 && (
-                                        <div className="uploaded-files-container">
+                                        <div className="uploaded-files-container pt-4">
                                             {selectedStoredFiles.map((file) => (
                                                 <div
                                                     key={file.fileID}
@@ -587,7 +587,15 @@ const Insights = () => {
                                         placeholder="Type a message"
                                         rows={1}
                                         className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border"
+                                        onKeyDown={(e) => {
+                                            // If user presses Enter without Shift, send the message
+                                            if (e.key === "Enter" && !e.shiftKey) {
+                                                e.preventDefault(); // Prevent creating a new line
+                                                sendMessage();
+                                            }
+                                        }}
                                     />
+
                                     <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px] relative">
                                         <div className="left-button relative">
                                             {/* Paperclip Icon */}
@@ -666,9 +674,9 @@ const Insights = () => {
                                         className={`
                                         chat-message
                                         ${message.sender === "user"
-                                        ? "user-message self-end bg-[#e1e1e3]"
-                                        : "assistant-message justify-start"
-                                    }
+                                                ? "user-message self-end bg-[#e1e1e3]"
+                                                : "assistant-message justify-start"
+                                            }
                                         mt-[10px] mb-[10px] rounded-[15px] p-[10px] max-w-[100%] break-words relative
                                         `}
                                     >
@@ -801,7 +809,15 @@ const Insights = () => {
                                     placeholder="Type a message"
                                     rows={1}
                                     className="chat-input flex items-center w-full bg-[#e9e9ed] border-none outline-none rounded-[15px] px-[30px] py-[30px] text-[15px] resize-none box-border"
+                                    onKeyDown={(e) => {
+                                        // If user presses Enter without Shift, send the message
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault(); // Prevent creating a new line
+                                            sendMessage();
+                                        }
+                                    }}
                                 />
+
                                 <div className="button-row flex justify-between items-center bg-[#e9e9ed] px-[25px] py-[10px] relative">
                                     <div className="left-button relative">
 
