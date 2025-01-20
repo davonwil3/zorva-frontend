@@ -25,10 +25,7 @@ const Insights = () => {
         filenames?: string[];  // NEW: array of string filenames
     };
 
-
     const chatMessagesRef = useRef<HTMLDivElement>(null);
-
-
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isEditing, setIsEditing] = useState(false);
@@ -45,9 +42,7 @@ const Insights = () => {
     const [selectedStoredFiles, setSelectedStoredFiles] = useState<
         { fileID: string; filename: string }[]
     >([]);
-
-
-
+    
     // Holds the assistant messages that the user “saves”
     const [savedResponses, setSavedResponses] = useState<{ id: number; text: string }[]>([]);
 

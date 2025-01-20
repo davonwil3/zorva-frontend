@@ -21,6 +21,7 @@ export default function InsightsToggle() {
         <div className="flex flex-row w-[46%] relative h-[64px]">
             <ToggleButtonGroup
                 value={insightsSection} // Bind to Redux state
+                color="primary"
                 exclusive
                 onChange={handleInsightSection} // Update Redux state on change
                 aria-label="insights section"
