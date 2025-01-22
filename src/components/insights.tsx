@@ -42,7 +42,7 @@ const Insights = () => {
     const [selectedStoredFiles, setSelectedStoredFiles] = useState<
         { fileID: string; filename: string }[]
     >([]);
-    
+
     // Holds the assistant messages that the user “saves”
     const [savedResponses, setSavedResponses] = useState<{ id: number; text: string }[]>([]);
 
@@ -316,11 +316,12 @@ const Insights = () => {
             if (threadID) formData.append("threadID", threadID);
             if (title) formData.append("title", title);
 
-            const filenames = selectedStoredFiles.map((file) => ({ name: file.filename }));
-            if (selectedStoredFiles) {
-                formData.append("filenames", JSON.stringify(filenames));
+            const filenames = selectedStoredFiles.map((file) => file.filename);
+            if (selectedStoredFiles.length > 0) {
+                filenames.forEach((filename) => {
+                    formData.append("filenames[]", filename);
+                });
             }
-
             // 4. Send to the backend
             const chatRes = await fetch("http://localhost:10000/api/chat", {
                 method: "POST",

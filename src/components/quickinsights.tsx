@@ -52,12 +52,13 @@ const generateInsights = async () => {
   try {
     // Extract only file IDs from the selectedStoredFiles
     const fileIDs = selectedStoredFiles.map((file) => file.fileID);
+    const filenames = selectedStoredFiles.map((file) => file.filename);
 
     // Make a POST request to the backend with the file IDs
     const response = await fetch("http://localhost:10000/api/generateInsights", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firebaseUid, fileIDs }),
+      body: JSON.stringify({ firebaseUid, fileIDs, filenames }),
     });
 
     if (!response.ok) {

@@ -62,11 +62,23 @@ const FileExplorerModal: React.FC<FileExplorerModalProps> = ({
         }
 
         const data = await response.json();
-        const fetchedFiles: FileRow[] = data.files.map((file: any) => ({
-          fileID: file.id,
-          filename: file.filename ?? "Untitled",
-          created_at: file.created_at,
-        }));
+      
+        const fetchedFiles: FileRow[] = data.files.map((file: any) => {
+          let correctedFilename = file.filename ?? 'Untitled';
+
+          if (correctedFilename.endsWith('.json')) {
+              const parts = correctedFilename.split('.');
+              if (parts.length > 2) {
+                  correctedFilename = parts.slice(0, -1).join('.');
+              }
+          }
+
+          return {
+            fileID: file.id,
+            filename: correctedFilename ?? "Untitled",
+            created_at: file.created_at,
+          };
+        });
 
         setFiles(fetchedFiles);
         setSearchResults(fetchedFiles);
