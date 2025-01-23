@@ -24,6 +24,7 @@ const Insights = () => {
         files?: { name: string; type: string }[];
         filenames?: string[];  // NEW: array of string filenames
         followUpQuestions?: { question: string }[];
+        citations?: string[];
     };
 
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -130,7 +131,7 @@ const Insights = () => {
     };
 
     // Save insight to backend
-    const handleSaveResponse = async (responseText: string) => {
+    const handleSaveResponse = async (responseText: string, citations: string[]) => {
         if (!threadID) return;
 
         try {
@@ -144,7 +145,7 @@ const Insights = () => {
                     threadID,
                     text: responseText,
                     data: "",
-                    fileReference: "",
+                    fileReference: citations,
                 }),
             });
 
@@ -252,7 +253,11 @@ const Insights = () => {
                     text: msg.text || "", // Fallback to empty string if text is missing
                     sender: msg.sender === "user" ? "user" : "assistant",
                     filenames: msg.filenames || [],
+                    citations: msg.fileCitations || [],
                 }));
+
+                
+                
     
             setMessages(loadedMessages);
     
@@ -385,6 +390,7 @@ const Insights = () => {
                             text: data.response, // Final assistant response
                             sender: "assistant",
                             followUpQuestions: data.questionsArray || [], // Add follow-up questions
+                            citations: data.citations || [], // Add citations
                         }
                         : msg
                 )
@@ -811,7 +817,7 @@ const Insights = () => {
                                                     )}
 
                                                     <button
-                                                        onClick={() => handleSaveResponse(message.text)}
+                                                        onClick={() => handleSaveResponse(message.text, message.citations || [])}
                                                         className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
                                                     >
                                                         Save
