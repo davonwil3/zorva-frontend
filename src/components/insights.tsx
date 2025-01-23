@@ -23,6 +23,7 @@ const Insights = () => {
         isLoading?: boolean;
         files?: { name: string; type: string }[];
         filenames?: string[];  // NEW: array of string filenames
+        followUpQuestions?: { question: string }[];
     };
 
     const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -31,7 +32,6 @@ const Insights = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState("Untitled");
     const [threadID, setThreadID] = useState<string | null>(null);
-    const [insightsSection, setInsightSection] = React.useState('chat');
     const [loading, setLoading] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
@@ -54,6 +54,9 @@ const Insights = () => {
     // -- NEW: Modal control & conversations list
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [conversations, setConversations] = useState<any[]>([]);
+
+    // follow up questions
+    const [followUpQuestions, setFollowUpQuestions] = useState<{ question: string }[]>([]);
 
     useEffect(() => {
         if (chatMessagesRef.current) {
@@ -94,12 +97,6 @@ const Insights = () => {
         setTitle(event.target.value);
     };
 
-    // handle section change
-    const handleInsightSection = (event: React.MouseEvent<HTMLElement>, newSection: string | null) => {
-        if (newSection) {
-            setInsightSection(newSection);
-        }
-    };
 
     const handleBlur = async () => {
         setIsEditing(false);
@@ -215,18 +212,18 @@ const Insights = () => {
     const handleSelectConversation = async (conversation: any) => {
         // 1. Close the modal
         setIsModalOpen(false);
-
+    
         // 2. Set local thread, title, and any saved insights
         setThreadID(conversation.threadID);
         setTitle(conversation.title || "Untitled Conversation");
-
-        // Make sure to map each saved insight to { id, text }
+    
+        // Map saved insights
         const insights = conversation.savedInsights?.map((insight: any) => ({
             id: insight.insightID,
             text: insight.text,
         })) || [];
         setSavedResponses(insights);
-
+    
         // 3. Fetch the messages
         try {
             const response = await fetch("http://localhost:10000/api/listMessages", {
@@ -237,32 +234,34 @@ const Insights = () => {
                     threadID: conversation.threadID,
                 }),
             });
-
+    
             if (!response.ok) {
                 throw new Error(
                     `Failed to fetch messages, server returned status: ${response.status}`
                 );
             }
-
+    
             const data = await response.json();
-
+    
+            // Process the messages, handling cases where text is missing
             const loadedMessages = data.messages
-                .filter((msg: any) => msg.text.trim() !== "" || msg.sender.trim() !== "")
-                .map((msg: any) => {
-                    const sender = msg.sender === "user" ? "user" : "assistant";
-                    return {
-                        text: msg.text,
-                        sender,
-                        filenames: msg.filenames || [],
-                    };
-                });
-
+                .filter((msg: any) => 
+                    (msg.text?.trim() || "") !== "" || (msg.sender?.trim() || "") !== ""
+                )
+                .map((msg: any) => ({
+                    text: msg.text || "", // Fallback to empty string if text is missing
+                    sender: msg.sender === "user" ? "user" : "assistant",
+                    filenames: msg.filenames || [],
+                }));
+    
             setMessages(loadedMessages);
-
+    
+            console.log("Loaded messages:", loadedMessages);
         } catch (error) {
             console.error("Error fetching conversation messages:", error);
         }
     };
+    
 
     // Handle chat send
 
@@ -322,7 +321,8 @@ const Insights = () => {
                     formData.append("filenames[]", filename);
                 });
             }
-            // 4. Send to the backend
+
+            // 4. Send to the backend (streaming)
             const chatRes = await fetch("http://localhost:10000/api/chat", {
                 method: "POST",
                 body: formData,
@@ -333,13 +333,59 @@ const Insights = () => {
                 throw new Error(`Server error ${chatRes.status}: ${errorText}`);
             }
 
-            const data = await chatRes.json();
+            // --- STREAMING LOGIC BEGIN ---
+            const reader = chatRes.body?.getReader();
+            if (!reader) {
+                throw new Error("ReadableStream not supported in this environment.");
+            }
 
-            // 5. Update assistant's response (remove the isLoading message)
+            const decoder = new TextDecoder();
+            let doneReading = false;
+            let partialText = ""; // To accumulate partial updates
+            let finalData = ""; // To store the final JSON
+
+            while (!doneReading) {
+                const { value, done } = await reader.read();
+                doneReading = done;
+                if (value) {
+                    const chunk = decoder.decode(value, { stream: true });
+                    finalData += chunk; // Accumulate the complete response
+                    partialText += chunk; // Incrementally display
+
+                    // Check if the response contains JSON (final chunk detection)
+                    try {
+                        const possibleJson = JSON.parse(partialText);
+                        if (possibleJson.response) {
+                            finalData = partialText;
+                            doneReading = true; // End early if full JSON detected
+                        }
+                    } catch {
+                        // Not JSON yet, continue reading
+                    }
+
+                    // Update the assistant's "Loading..." message text incrementally
+                    setMessages((prev) =>
+                        prev.map((msg) =>
+                            msg.isLoading
+                                ? { ...msg, text: partialText } // Update with incremental data
+                                : msg
+                        )
+                    );
+                }
+            }
+            // --- STREAMING LOGIC END ---
+
+            // Now that the stream is complete, parse the accumulated JSON
+            const data = JSON.parse(finalData);
+
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.isLoading
-                        ? { text: data.response, sender: "assistant" }
+                        ? {
+                            text: data.response, // Final assistant response
+                            sender: "assistant",
+                            followUpQuestions: data.questionsArray || [], // Add follow-up questions
+                        }
                         : msg
                 )
             );
@@ -362,7 +408,6 @@ const Insights = () => {
             // 7. Clear the locally stored files
             setUploadedFile(null);
             setSelectedStoredFiles([]);
-
         } catch (error) {
             console.error("Error in sendMessage:", error);
             // If an error occurs, replace the loading message with a generic error message
@@ -375,7 +420,6 @@ const Insights = () => {
             );
         }
     };
-
 
     const generateTitleFrontend = async (query: string): Promise<string | null> => {
         try {
@@ -472,6 +516,10 @@ const Insights = () => {
         });
     };
 
+    // choose a question and update text area with question
+    const handleFollowUpQuestion = (question: string) => {
+        setInput(question);
+    };
 
 
     return (
@@ -484,7 +532,7 @@ const Insights = () => {
                         <FontAwesomeIcon
                             icon={faCirclePlus as IconProp}
                             className="absolute top-8 right-8 text-blue-500 text-[25px] cursor-pointer hover:text-blue-600"
-                            onClick={startNewConversation} // Define this function for starting a new conversation
+                            onClick={startNewConversation}
                         />
                     )}
                 </div>
@@ -747,6 +795,21 @@ const Insights = () => {
                                                 />
                                                 <div>
                                                     <p className="m-0 whitespace-pre-wrap">{message.text}</p>
+                                                    {/** if there are follow up questions render the questions **/}
+                                                    {message.followUpQuestions && message.followUpQuestions.length > 0 && (
+                                                        <div className="follow-up-questions mt-4 flex flex-wrap gap-2">
+                                                            {message.followUpQuestions.map((item, idx) => (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md transform transition-transform duration-300 hover:bg-blue-600 hover:scale-105"
+                                                                    onClick={() => { handleFollowUpQuestion(item.question); }}
+                                                                >
+                                                                    {item.question}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
                                                     <button
                                                         onClick={() => handleSaveResponse(message.text)}
                                                         className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
