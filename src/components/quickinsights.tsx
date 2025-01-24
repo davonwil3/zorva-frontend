@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FileExplorerModal from "./fileexplorermodal";
 import { getAuth } from "firebase/auth";
@@ -7,17 +7,41 @@ import { faFile } from "@fortawesome/pro-light-svg-icons";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faTimesCircle } from "@fortawesome/pro-light-svg-icons";
+import { file } from "jszip";
+import { userInfo } from "os";
 
 export default function QuickInsights() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedStoredFiles, setSelectedStoredFiles] = useState<
-    { fileID: string; filename: string }[]
-  >([]);
-  const [insights, setInsights] = useState<{ title: string; description: string }[]>([]);
+  const [selectedStoredFiles, setSelectedStoredFiles] = useState<{ fileID: string; filename: string }[]>([]);
+  const [insights, setInsights] = useState<{ userID: string; assistantID: string; threadID: string; title: string; description: string; filenames?: string[] }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [threadID, setThreadID] = useState<string | null>(null);
 
   const auth = getAuth(app);
   const firebaseUid = auth.currentUser?.uid;
+
+    useEffect(() => {
+    const getThreadID = async () => {
+      if (!firebaseUid) return;
+      const response = await fetch("http://localhost:10000/api/getUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firebaseUid }),
+      });
+      const data = await response.json();
+      const user = data.user; // Access the user object from the 'user' key
+      if (user && user.quickInsightsThreadID) {
+        const threads = user.quickInsightsThreadID;
+        setThreadID(threads);
+        console.log(threads);
+      } else {
+        console.log("quickInsightsThreadID not available");
+      }
+      console.log(user);
+    };
+  
+    getThreadID();
+  }, [firebaseUid]); // Use firebaseUid as the dependency
 
   // Open the file explorer modal
   const openModal = () => {
@@ -41,60 +65,75 @@ export default function QuickInsights() {
   };
 
   // Generate insights by calling the backend
-const generateInsights = async () => {
-  if (selectedStoredFiles.length === 0) {
-    alert("Please upload at least one file to generate insights.");
-    return;
-  }
+  const generateInsights = async () => {
+    if (selectedStoredFiles.length === 0) {
+      alert("Please upload at least one file to generate insights.");
+      return;
+    }
 
-  setIsGenerating(true);
+    setIsGenerating(true);
 
-  try {
-    // Extract only file IDs from the selectedStoredFiles
-    const fileIDs = selectedStoredFiles.map((file) => file.fileID);
-    const filenames = selectedStoredFiles.map((file) => file.filename);
+    try {
+      // Extract only file IDs from the selectedStoredFiles
+      const fileIDs = selectedStoredFiles.map((file) => file.fileID);
+      const filenames = selectedStoredFiles.map((file) => file.filename);
 
-    // Make a POST request to the backend with the file IDs
-    const response = await fetch("http://localhost:10000/api/generateInsights", {
+      // Make a POST request to the backend with the file IDs
+      const response = await fetch("http://localhost:10000/api/generateInsights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firebaseUid, fileIDs, filenames,  }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate insights. Please try again.");
+      }
+
+      // Parse the response data
+      const data = await response.json();
+      const insights = data.insights.map((insight: any) => ({
+        insightID: insight.insightID,
+        userID: insight.userID,
+        assistantID: insight.assistantID,
+        threadID: insight.threadID,
+        title: insight.title,
+        description: insight.text,
+        filenames: insight.filenames,
+      }));
+      setInsights(insights);
+      setThreadID(data.threadID);
+      console.log(insights);
+
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("An unknown error occurred.");
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Handle saving the response
+  const handleSaveResponse = async (insight: object) => {
+    if (!firebaseUid) return;
+    const type = 'quick';
+    console.log(insight);
+    const data = { firebaseUid, insight, type };
+    const res = await fetch("http://localhost:10000/api/saveInsight", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ firebaseUid, fileIDs, filenames }),
+      body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to generate insights. Please try again.");
-    }
-
-    // Parse the response data
-    const data = await response.json();
-    const rawData = data.response;
-  
-
-    // Use a regular expression to extract the JSON array
-    const jsonMatch = rawData.match(/\[([\s\S]*?)\]/); // Matches anything between "[" and "]" including multiline
-    if (!jsonMatch) {
-      throw new Error("Unable to parse insights: No valid JSON array found.");
-    }
-  
-    // Parse the extracted JSON string
-    const insights = JSON.parse(jsonMatch[0]);
-    setInsights(insights);
-    console.log(insights);
-
-    // Clear selected files after generating insights
-    setSelectedStoredFiles([]);
-
-  } catch (error) {
-    console.error(error);
-    if (error instanceof Error) {
-      alert(error.message);
+    if (res.ok) {
+      alert("Insights saved successfully!");
     } else {
-      alert("An unknown error occurred.");
+      alert("Failed to save insights.");
     }
-  } finally {
-    setIsGenerating(false);
-  }
-};
+  };
 
   return (
     <div className="flex flex-col w-full h-full  p-6 px-12">
@@ -152,39 +191,45 @@ const generateInsights = async () => {
         ))}
       </div>
 
-     {/* Insights Dashboard */}
-<div className="relative w-full flex-1 min-h-[550px] ">
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {insights.length > 0 ? (
-      insights.map((insight, index) => (
-        <div
-          key={index}
-          className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition"
-        >
-          <h3 className="text-lg font-semibold mb-2">{insight.title}</h3>
-          <p className="text-gray-600">{insight.description}</p>
-        </div>
-      ))
-    ) : (
-      // Overlay for no insights
-      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10">
-        <div className="text-center">
-          <img
-            src="/assets/woman-insights.png"
-            alt="No Insights"
-            className="mx-auto mb-4 w-[40%] h-auto"
-          />
-          <h3 className="text-white text-3xl font-semibold mb-2">
-            No insights yet
-          </h3>
-          <p className="text-gray-300">
-            Add files to generate meaningful insights.
-          </p>
+      {/* Insights Dashboard */}
+      <div className="relative w-full flex-1 min-h-[550px] ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {insights.length > 0 ? (
+            insights.map((insight, index) => (
+              <div
+                key={index}
+                className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition"
+              >
+                <h3 className="text-lg font-semibold mb-2">{insight.title}</h3>
+                <p className="text-gray-600">{insight.description}</p>
+                <button
+                  onClick={() => handleSaveResponse(insight)}
+                  className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
+                >
+                  Save
+                </button>
+              </div>
+            ))
+          ) : (
+            // Overlay for no insights
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10">
+              <div className="text-center">
+                <img
+                  src="/assets/woman-insights.png"
+                  alt="No Insights"
+                  className="mx-auto mb-4 w-[40%] h-auto"
+                />
+                <h3 className="text-white text-3xl font-semibold mb-2">
+                  No insights yet
+                </h3>
+                <p className="text-gray-300">
+                  Add files to generate meaningful insights.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    )}
-  </div>
-</div>
 
 
       {/* File Explorer Modal */}

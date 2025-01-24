@@ -131,7 +131,7 @@ const Insights = () => {
     };
 
     // Save insight to backend
-    const handleSaveResponse = async (responseText: string, citations: string[]) => {
+    const handleSaveResponse = async (responseText: string, citations: string[], type: string) => {
         if (!threadID) return;
 
         try {
@@ -146,6 +146,7 @@ const Insights = () => {
                     text: responseText,
                     data: "",
                     fileReference: citations,
+                    type,
                 }),
             });
 
@@ -471,24 +472,33 @@ const Insights = () => {
 
     const handleDeleteConversation = async (conversation: any) => {
         try {
-
             const response = await fetch(`http://localhost:10000/api/deleteConversation`, {
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ threadID: conversation.threadID }),
             });
-
+    
             if (!response.ok) {
                 throw new Error("Failed to delete conversation");
             }
-
+    
             // Remove the deleted conversation from the state
             setConversations((prev) => prev.filter((conv) => conv.threadID !== conversation.threadID));
             console.log("Conversation deleted successfully");
+    
+            // Check if the current thread ID matches the deleted conversation's thread ID
+            if (conversation.threadID === threadID) {
+                // Reset the state to start a new conversation
+                setThreadID(null); // Clear the current thread ID
+                setTitle("Untitled"); // Set a default title for the new conversation
+                setMessages([]); // Clear all previous messages
+                setSavedResponses([]); // Clear saved responses or insights related to the conversation
+            }
         } catch (error) {
             console.error("Error deleting conversation:", error);
         }
     };
+    
 
 
     // --------------  Show/hide modal --------------
@@ -817,7 +827,7 @@ const Insights = () => {
                                                     )}
 
                                                     <button
-                                                        onClick={() => handleSaveResponse(message.text, message.citations || [])}
+                                                        onClick={() => handleSaveResponse(message.text, message.citations || [], "chat")}
                                                         className="text-sm text-blue-600 hover:underline mt-2 ml-auto focus:outline-none"
                                                     >
                                                         Save
