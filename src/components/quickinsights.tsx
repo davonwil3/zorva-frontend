@@ -7,8 +7,7 @@ import { faFile } from "@fortawesome/pro-light-svg-icons";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faTimesCircle } from "@fortawesome/pro-light-svg-icons";
-import { file } from "jszip";
-import { userInfo } from "os";
+
 
 export default function QuickInsights() {
   const [isModalOpen, setIsModalOpen] = useState(false);
