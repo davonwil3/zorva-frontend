@@ -54,6 +54,7 @@ export default function Modal(props: any) {
                 body: JSON.stringify({
                     fileIDs: [props.selectedRow.fileID],
                     firebaseUid: props.firebaseUid,
+                    filenames: [props.selectedRow.filename],
                 }),
             });
             const data = await response.json();

@@ -12,7 +12,7 @@ import DataSets from "./components/datasets";
 import InsightsStaging from "./components/insightsstaging";
 import { Link } from "react-router-dom";
 import './index.css'
-import GraphsPage from "./components/graphspage";
+import GraphsStaging from "./components/graphsstaging";
 
 function Dashboard() {
     const [currentView, setCurrentView] = useState('datasets');
@@ -96,7 +96,7 @@ function Dashboard() {
                     {currentView === 'upload' && <Upload />}
                     {currentView === 'datasets' && <DataSets />}
                     {currentView === 'insights' && <InsightsStaging />}
-                    {currentView === 'graphs' && <GraphsPage />}
+                    {currentView === 'graphs' && <GraphsStaging />}
                 </div>
             </div>
         </div >
