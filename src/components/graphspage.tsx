@@ -9,12 +9,139 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { faTimesCircle } from "@fortawesome/pro-light-svg-icons";
 import FileExplorerModal from "./fileexplorermodal";
 import CreateGraphModal from "./creategraphmodal";
+import {
+    Bar,
+    Line,
+    Pie,
+    Doughnut,
+    Radar,
+    PolarArea,
+    Scatter,
+    Bubble,
+} from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    RadialLinearScale,
+    Tooltip,
+    Legend,
+} from "chart.js";
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    RadialLinearScale,
+    Tooltip,
+    Legend
+);
 
 
 export default function GraphsPage() {
+
+    const commonData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        datasets: [
+            {
+                label: "Sample Data",
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const scatterData = {
+        datasets: [
+            {
+                label: "Scatter Dataset",
+                data: [
+                    { x: 1, y: 1 },
+                    { x: 2, y: 4 },
+                    { x: 3, y: 9 },
+                    { x: 4, y: 16 },
+                    { x: 5, y: 25 },
+                ],
+                backgroundColor: "rgba(153, 102, 255, 0.5)",
+            },
+        ],
+    };
+
+    const bubbleData = {
+        datasets: [
+            {
+                label: "Bubble Dataset",
+                data: [
+                    { x: 5, y: 10, r: 10 },
+                    { x: 15, y: 5, r: 15 },
+                    { x: 20, y: 7, r: 7 },
+                    { x: 25, y: 12, r: 12 },
+                ],
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+            },
+        ],
+    };
+
+    // pie data
+    const pieData = {
+
+        "labels": ["Charlie", "Mac", "Dennis", "Dee"],
+        "datasets": [
+            {
+                "label": "Operator Job Distribution",
+                "data": [6, 4, 4, 3],
+                "backgroundColor": [
+                    "rgba(255, 99, 132, 0.6)",
+                    "rgba(54, 162, 235, 0.6)",
+                    "rgba(255, 206, 86, 0.6)",
+                    "rgba(75, 192, 192, 0.6)"
+                ],
+                "hoverBackgroundColor": [
+                    "rgba(255, 99, 132, 1)",
+                    "rgba(54, 162, 235, 1)",
+                    "rgba(255, 206, 86, 1)",
+                    "rgba(75, 192, 192, 1)"
+                ]
+            }
+        ]
+    }
+
+    // bar data
+    const barData = {
+        "labels": ["Dee", "Charlie", "Mac", "Dennis"],
+        "datasets": [{
+            "label": "Number of Batches",
+            "data": [11, 8, 7, 7],
+            "backgroundColor": "rgba(75, 192, 192, 0.2)",
+            "borderColor": "rgba(75, 192, 192, 1)",
+            "borderWidth": 1
+        }]
+    }
+
+    const chartTypes = [
+        { component: <Bar data={barData} />, name: "Bar Chart" },
+        { component: <Line data={commonData} />, name: "Line Chart" },
+        { component: <Pie data={pieData} />, name: "Pie Chart" },
+        { component: <Doughnut data={commonData} />, name: "Doughnut Chart" },
+        { component: <Radar data={commonData} />, name: "Radar Chart" },
+        { component: <PolarArea data={commonData} />, name: "Polar Area Chart" },
+        { component: <Scatter data={scatterData} />, name: "Scatter Chart" },
+        { component: <Bubble data={bubbleData} />, name: "Bubble Chart" },
+    ];
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStoredFiles, setSelectedStoredFiles] = useState<{ fileID: string; filename: string }[]>([]);
     const [graphmodalOpen, setGraphModalOpen] = useState(false);
+    const [createdCharts, setCreatedCharts] = useState<any[]>([]);
 
     const auth = getAuth(app);
     const firebaseUid = auth.currentUser?.uid || "";
@@ -42,8 +169,78 @@ export default function GraphsPage() {
     const openGraphModal = () => {
         setGraphModalOpen(true);
     }
+
+    useEffect(() => {
+        console.log("Created Charts:", createdCharts);
+    }, [createdCharts]);
+    // display graphs
+    const displayGraph = (chartType: string, chartData: any) => {
+        console.log("displayGraph called with:", chartType, chartData);
+        // Basic validation
+        if (!chartData || typeof chartData !== "object") {
+            console.error("Invalid data provided for the chart:", chartData);
+            return;
+        }
+
+        console.log("Chart Data:", chartData);
+
+        // Instead of storing a React element, store a configuration object
+        setCreatedCharts(prevCharts => [
+            ...prevCharts,
+            { type: chartType, data: chartData }
+        ]);
+    };
+
+    const chartSections = createdCharts.map((chartObj, index) => {
+        const { type, data } = chartObj;
+
+        // Optional: safeguard check before rendering
+        if (!data?.datasets) {
+            console.warn("Data is missing datasets:", data);
+            return null;
+        }
+
+        console.log("createdCharts in render:", createdCharts);
+
+        return (
+            <div
+                key={index}
+                className="group h-80 p-4 border border-gray-200 rounded-lg flex flex-col items-center hover:scale-105 transition-transform"
+            >
+                <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full">
+                        {(() => {
+                            switch (type) {
+                                case "Line":
+                                    return <Line data={data} />;
+                                case "Bar":
+                                    return <Bar data={data} />;
+                                case "Pie":
+                                    return <Pie data={data} />;
+                                case "Doughnut":
+                                    return <Doughnut data={data} />;
+                                case "Radar":
+                                    return <Radar data={data} />;
+                                case "Polar Area":
+                                    return <PolarArea data={data} />;
+                                case "Scatter":
+                                    return <Scatter data={data} />;
+                                case "Bubble":
+                                    return <Bubble data={data} />;
+                                default:
+                                    // Fallback chart if `type` doesn't match
+                                    return <Line data={data} />;
+                            }
+                        })()}
+                    </div>
+                </div>
+            </div>
+        );
+    });
+
+
     return (
-        <div className="flex flex-col w-full h-full  p-6 px-12 ">
+        <div className="flex flex-col w-full h-full  p-6 px-16 ">
             {/* Header */}
             <h2 className="text-2xl font-semibold mb-4">Graph Creation</h2>
             <p className="text-gray-600 mb-6">Select a file to generate data-driven graphs</p>
@@ -93,8 +290,11 @@ export default function GraphsPage() {
             </div>
 
             {/* Graphs Section */}
-            <div className="flex flex-col w-full border-t border-gray-300 flex-1 min-h-[550px]">
-                <p className="text-gray-600 mb-4">Graphs will be displayed here</p>
+            <div className="w-full flex-grow bg-white rounded-lg border border-gray-300 p-4">
+                <div className="grid grid-cols-3 gap-4 h-full">
+                    
+                    {chartSections}
+                </div>
             </div>
 
             {/* File Explorer Modal */}
@@ -113,7 +313,8 @@ export default function GraphsPage() {
                     setGraphModalOpen(false);
 
                 }}
-            selectedStoredFiles={selectedStoredFiles}
+                selectedStoredFiles={selectedStoredFiles}
+                displayGraph={displayGraph}
             />
 
 

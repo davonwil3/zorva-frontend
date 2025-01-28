@@ -135,7 +135,7 @@ export default function QuickInsights() {
   };
 
   return (
-    <div className="flex flex-col w-full h-full  p-6 px-12">
+    <div className="flex flex-col w-full h-full  p-6 px-16">
       {/* Header */}
       <h2 className="text-2xl font-semibold mb-4">Quick Insights</h2>
       <p className="text-gray-600 mb-6">Generate quick insights from your files</p>
@@ -211,7 +211,7 @@ export default function QuickInsights() {
             ))
           ) : (
             // Overlay for no insights
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10 rounded-lg">
               <div className="text-center">
                 <img
                   src="/assets/woman-insights.png"

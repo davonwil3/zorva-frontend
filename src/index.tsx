@@ -29,6 +29,16 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
+const originalConsoleError = console.error;
+
+console.error = (...args) => {
+  if (typeof args[0] === 'string' && args[0].includes("ResizeObserver loop completed")) {
+    // Suppress the ResizeObserver warning
+    return;
+  }
+  originalConsoleError(...args);
+};
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

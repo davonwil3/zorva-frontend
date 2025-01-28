@@ -11,8 +11,9 @@ export default function InsightsStaging ()  {
 
     return (
         <div className="flex flex-col w-full h-full">
-           <div className='flex flex-row w-full'>
-            {insightsSection === 'quick' &&<InsightsToggle />} 
+           <div className='flex flex-row w-full px-8'>
+            {insightsSection === 'quick'  &&<InsightsToggle />} 
+        
             </div>
             
 

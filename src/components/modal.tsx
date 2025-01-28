@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import "../css/modal.css";
 import { AgGridReact } from "ag-grid-react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import * as XLSX from "xlsx";
@@ -99,9 +98,9 @@ export default function Modal(props: any) {
                             {}
                         )
                     );
-                
+
                     console.log("Parsed CSV data:", rowData);
-                
+
                     if (rowData.length > 0) {
                         const columns = headers.map((header) => ({
                             field: header,
@@ -149,8 +148,8 @@ export default function Modal(props: any) {
                     // Unsupported file type
                     console.log("Unsupported file type:", filename);
                     setError("Unsupported file type.");
-                }                
-                
+                }
+
             } else {
                 setError("No files found.");
             }
@@ -174,82 +173,93 @@ export default function Modal(props: any) {
     if (!props.isOpen) return null;
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-and-sidebar">
-                <div className="modal-container">
-                    <button className="modal-close" onClick={props.onClose}>
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="flex bg-white rounded-lg shadow-2xl max-w-6xl w-full overflow-hidden relative">
+                {/* Main Content */}
+                <div className="flex-grow p-6">
+                    <button
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+                        onClick={props.onClose}
+                        aria-label="Close Modal"
+                    >
                         &times;
                     </button>
 
-                    {loading ? (
-                        <p>Loading...</p>
-                    ) : error ? (
-                        <p>No details available or unsupported file type: {error}</p>
-                    ) : contentType === "grid" ? (
-                        <div className="modal-grid-container" style={{ height: 700, width: "100%" }}>
-                            <AgGridReact
-                                rowData={rowData}
-                                columnDefs={columnDefs}
-                                defaultColDef={{
-                                    sortable: true,
-                                    filter: true,
-                                    resizable: true,
-                                }}
-                            />
-                        </div>
-                    ) : contentType === "microsoftViewer" ? (
-                        microsoftViewerUrl ? (
-                            <iframe
-                                key={microsoftViewerUrl} // Forces re-render when URL changes
-                                src={microsoftViewerUrl}
-                                style={{ width: "100%", height: "700px", border: "none" }}
-                                title="Microsoft Office Viewer"
-                                onError={(e) => {
-                                    console.error("Iframe Load Error:", e);
-                                    setError("Failed to load document in viewer.");
-                                }}
-                                onLoad={() => {
-                                    console.log("Iframe loaded successfully.");
-                                }}
-                            ></iframe>
+                    {/* Conditional Content */}
+                    <div className="h-[650px] overflow-auto bg-gray-50 p-4 rounded-lg">
+                        {loading ? (
+                            <p className="text-center text-gray-500">Loading...</p>
+                        ) : error ? (
+                            <p className="text-center text-red-500">
+                                No details available or unsupported file type: {error}
+                            </p>
+                        ) : contentType === "grid" ? (
+                            <div className="h-full w-full">
+                                <AgGridReact
+                                    rowData={rowData}
+                                    columnDefs={columnDefs}
+                                    defaultColDef={{
+                                        sortable: true,
+                                        filter: true,
+                                        resizable: true,
+                                    }}
+                                />
+                            </div>
+                        ) : contentType === "microsoftViewer" ? (
+                            microsoftViewerUrl ? (
+                                <iframe
+                                    src={microsoftViewerUrl}
+                                    className="w-full h-full border-none"
+                                    title="Microsoft Office Viewer"
+                                    onError={(e) => {
+                                        console.error("Iframe Load Error:", e);
+                                        setError("Failed to load document in viewer.");
+                                    }}
+                                ></iframe>
+                            ) : (
+                                <p className="text-center text-gray-500">Loading viewer...</p>
+                            )
+                        ) : contentType === "pdf" ? (
+                            <PDFViewer pdfUrl={fileData[0]?.data || ""} />
+                        ) : contentType === "json" ? (
+                            <div className="bg-gray-100 p-4 rounded-lg overflow-auto h-96">
+                                <SyntaxHighlighter language="json" style={atomDark}>
+                                    {JSON.stringify(jsonContent, null, 2)}
+                                </SyntaxHighlighter>
+                            </div>
                         ) : (
-                            <p>Loading viewer...</p>
-                        )
-                    ) : contentType === "pdf" ? (
-                        <PDFViewer pdfUrl={fileData[0].data} />
-                    ) : contentType === "json" ? (
-                        <div
-                            style={{
-                                background: "#f9f9f9",
-                                padding: "15px",
-                                borderRadius: "8px",
-                                overflow: "auto",
-                                height: "700px",
-                            }}
-                        >
-                            <SyntaxHighlighter language="json" style={atomDark}>
-                                {JSON.stringify(jsonContent, null, 2)}
-                            </SyntaxHighlighter>
-                        </div>
-                    ) : (
-                        <p>No details available or unsupported file type.</p>
-                    )}
+                            <p className="text-center text-gray-500">No details available or unsupported file type.</p>
+                        )}
+                    </div>
                 </div>
-                <div className="modal-sidebar">
-                    <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faLightbulbOn as IconProp} />
-                        <p>Insights</p>
+
+                {/* Sidebar */}
+                <div className="w-24 bg-gray-100 border-l border-gray-200 flex flex-col items-center py-4 space-y-6">
+                    {/* Sidebar Items */}
+                    <div className="flex flex-col items-center cursor-pointer p-3 hover:bg-gray-200 rounded-lg">
+                        <FontAwesomeIcon
+                            className="text-xl text-yellow-500 mb-2"
+                            icon={faLightbulbOn as IconProp}
+                        />
+                        <p className="text-sm text-gray-600 font-medium">Insights</p>
                     </div>
-                    <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faFileChartPie as IconProp} />
-                        <p>Reports</p>
+                    <div className="flex flex-col items-center cursor-pointer p-3 hover:bg-gray-200 rounded-lg">
+                        <FontAwesomeIcon
+                            className="text-xl text-blue-500 mb-2"
+                            icon={faFileChartPie as IconProp}
+                        />
+                        <p className="text-sm text-gray-600 font-medium">Reports</p>
                     </div>
-                    <div className="modal-sidebar-element">
-                        <FontAwesomeIcon className="menu-icon" icon={faChartLineUp as IconProp} />
-                        <p>Graphs</p>
+                    <div className="flex flex-col items-center cursor-pointer p-3 hover:bg-gray-200 rounded-lg">
+                        <FontAwesomeIcon
+                            className="text-xl text-green-500 mb-2"
+                            icon={faChartLineUp as IconProp}
+                        />
+                        <p className="text-sm text-gray-600 font-medium">Graphs</p>
                     </div>
                 </div>
             </div>
         </div>
+
     );
 }

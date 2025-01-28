@@ -18,7 +18,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfUrl }) => {
         alignItems: "center",
         overflow: "hidden",
         borderRadius: "8px",
-        border: "1px solid #ddd", // Optional border for better appearance
         backgroundColor: "#fff",
         padding: "9px",
       }}

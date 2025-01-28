@@ -11,13 +11,13 @@ export default function GraphsStaging ()  {
 
     return (
         <div className="flex flex-col w-full h-full">
-           <div className='flex flex-row w-full'>
+           <div className='flex flex-row w-full px-8'>
                 <GraphsToggle /> {/* Render GraphsToggle */} 
             </div>
             
 
             {/* Conditional rendering based on the Redux state */}
-            <div className="content-area w-full h-full">
+            <div className="content-area w-full h-full ">
                 {graphsSection === 'create' && <GraphsPage />} {/* Render GraphsPage */}
                 {graphsSection === 'saved' && <SavedGraphs />} {/* Render SavedGraphs */}
             </div>

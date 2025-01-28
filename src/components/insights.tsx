@@ -56,9 +56,6 @@ const Insights = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [conversations, setConversations] = useState<any[]>([]);
 
-    // follow up questions
-    const [followUpQuestions, setFollowUpQuestions] = useState<{ question: string }[]>([]);
-
     useEffect(() => {
         if (chatMessagesRef.current) {
             chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
@@ -540,7 +537,7 @@ const Insights = () => {
 
     return (
         <div className="flex flex-col w-full h-full ">
-            <div className=" flex flex-row w-full ">
+            <div className=" flex flex-row w-full px-8 ">
                 <InsightsToggle />
                 <div className=" flex flex-row w-[54%]  border-l border-gray-200 bg-[#faf9f9] relative ">
                     {/* New Conversation Icon */}
@@ -555,7 +552,7 @@ const Insights = () => {
             </div>
             <div className="flex flex-row w-full h-full">
                 {/* LEFT SECTION: Generated Insights */}
-                <div className="w-[46%] h-full flex flex-col items-start justify-start px-8 pt-8">
+                <div className="w-[46%] h-full flex flex-col items-start justify-start px-16 pt-8">
                     <h2 className="text-[17px] font-semibold ">Saved Insights</h2>
 
                     {savedResponses.length === 0 ? (

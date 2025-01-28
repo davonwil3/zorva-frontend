@@ -288,7 +288,7 @@ export default function Datasets() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-start w-full h-full pt-12 ">
+        <div className="flex flex-col items-center justify-start w-full h-full pt-12 px-16 ">
            <div className="flex flex-row justify-between items-center w-[90%] mb-5 max-w-[1400px]">
                 <div className="search-container">
                     <input
